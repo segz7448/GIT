@@ -1,0 +1,397 @@
+import 'react-native-gesture-handler';
+import React from 'react';
+import { TouchableOpacity, Text, Linking, Platform, StyleSheet } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import * as NavigationBar from 'expo-navigation-bar';
+import { NavigationContainer, DarkTheme } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { isPushEnabled, initFcmListeners, enablePushNotifications } from './src/services/fcm';
+import { BlurView } from 'expo-blur';
+import PremiumIcon from './src/components/icons/PremiumIcon';
+
+import { AuthProvider, useAuth } from './src/context/AuthContext';
+import { SidebarProvider, useSidebar } from './src/context/SidebarContext';
+import { StagingProvider } from './src/context/StagingContext';
+import SidebarMenu from './src/components/SidebarMenu';
+import RecoveryBanner from './src/components/RecoveryBanner';
+import { navigationRef, navigate } from './src/navigation';
+import { ensureBackgroundTaskRegistered } from './src/backgroundTasks';
+import { initDatabase } from './src/db/database';
+import { colors } from './src/theme';
+
+import LoginScreen from './src/screens/LoginScreen';
+import RepoListScreen from './src/screens/RepoListScreen';
+import RepoDetailScreen from './src/screens/RepoDetailScreen';
+import RepoSettingsScreen from './src/screens/RepoSettingsScreen';
+import FileEditorScreen from './src/screens/FileEditorScreen';
+import FileHistoryScreen from './src/screens/FileHistoryScreen';
+import StagedChangesScreen from './src/screens/StagedChangesScreen';
+import RepoSafetyScreen from './src/screens/RepoSafetyScreen';
+import GitToolsScreen from './src/screens/GitToolsScreen';
+import CommitHistoryScreen from './src/screens/CommitHistoryScreen';
+import StashesScreen from './src/screens/StashesScreen';
+import LocalCloneScreen from './src/screens/LocalCloneScreen';
+import CompareRemoteScreen from './src/screens/CompareRemoteScreen';
+import RepoIssuesScreen from './src/screens/RepoIssuesScreen';
+import IssueDetailScreen from './src/screens/IssueDetailScreen';
+import RepoGitHubScreen from './src/screens/RepoGitHubScreen';
+import SecurityScreen from './src/screens/SecurityScreen';
+import ErrorBoundary from './src/components/ErrorBoundary';
+import GlassSplash from './src/components/GlassSplash';
+import ZipUploadScreen from './src/screens/ZipUploadScreen';
+import ActionsListScreen from './src/screens/ActionsListScreen';
+import PullRequestListScreen from './src/screens/PullRequestListScreen';
+import PullRequestDetailScreen from './src/screens/PullRequestDetailScreen';
+import CreatePullRequestScreen from './src/screens/CreatePullRequestScreen';
+import ReleasesListScreen from './src/screens/ReleasesListScreen';
+import ReleaseDetailScreen from './src/screens/ReleaseDetailScreen';
+import CreateReleaseScreen from './src/screens/CreateReleaseScreen';
+import RunDetailScreen from './src/screens/RunDetailScreen';
+import WorkflowDispatchScreen from './src/screens/WorkflowDispatchScreen';
+import CodeSearchScreen from './src/screens/CodeSearchScreen';
+import TerminalScreen from './src/screens/TerminalScreen';
+import CodespacesScreen from './src/screens/CodespacesScreen';
+import CodespaceWebViewScreen from './src/screens/CodespaceWebViewScreen';
+import CreateCodespaceScreen from './src/screens/CreateCodespaceScreen';
+import SettingsScreen from './src/screens/SettingsScreen';
+import ProfileScreen from './src/screens/ProfileScreen';
+import IssuesScreen from './src/screens/IssuesScreen';
+import ActivityScreen from './src/screens/ActivityScreen';
+import WidgetSettingsScreen from './src/screens/WidgetSettingsScreen';
+
+const RootStack = createNativeStackNavigator();
+const ReposStackNav = createNativeStackNavigator();
+const Tab = createBottomTabNavigator();
+
+const navTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    background: colors.bgDefault,
+    card: colors.bgSubtle,
+    border: colors.border,
+    text: colors.fgDefault,
+    primary: colors.accent,
+  },
+};
+
+const screenOptions = {
+  headerStyle: { backgroundColor: colors.bgSubtle },
+  headerTintColor: colors.fgDefault,
+  headerTitleStyle: { color: colors.fgDefault },
+  contentStyle: { backgroundColor: colors.bgDefault },
+};
+
+function HamburgerButton() {
+  const { open } = useSidebar();
+  return (
+    <PremiumIcon
+      name="menu"
+      size={22}
+      onPress={open}
+      style={{ paddingHorizontal: 12 }}
+      accessibilityLabel="Open menu"
+    />
+  );
+}
+
+function ReposStack() {
+  return (
+    <ReposStackNav.Navigator screenOptions={screenOptions}>
+      <ReposStackNav.Screen
+        name="RepoList"
+        component={RepoListScreen}
+        options={{ title: 'Repositories', headerLeft: () => <HamburgerButton /> }}
+      />
+      <ReposStackNav.Screen name="RepoDetail" component={RepoDetailScreen} options={{ title: 'Repo' }} />
+      <ReposStackNav.Screen name="RepoSettings" component={RepoSettingsScreen} options={{ title: 'Settings' }} />
+      <ReposStackNav.Screen name="FileEditor" component={FileEditorScreen} options={{ title: 'Edit File' }} />
+      <ReposStackNav.Screen name="FileHistory" component={FileHistoryScreen} options={{ title: 'History' }} />
+      <ReposStackNav.Screen name="StagedChanges" component={StagedChangesScreen} options={{ title: 'Staged Changes' }} />
+      <ReposStackNav.Screen name="RepoSafety" component={RepoSafetyScreen} options={{ title: 'Repository Safety' }} />
+      <ReposStackNav.Screen name="GitTools" component={GitToolsScreen} options={{ title: 'Git Tools' }} />
+      <ReposStackNav.Screen name="CommitHistory" component={CommitHistoryScreen} options={{ title: 'Commit History' }} />
+      <ReposStackNav.Screen name="Stashes" component={StashesScreen} options={{ title: 'Stashes' }} />
+      <ReposStackNav.Screen name="LocalClone" component={LocalCloneScreen} options={{ title: 'Local Clone' }} />
+      <ReposStackNav.Screen name="CompareRemote" component={CompareRemoteScreen} options={{ title: 'Compare with Remote' }} />
+      <ReposStackNav.Screen name="RepoIssues" component={RepoIssuesScreen} options={{ title: 'Issues' }} />
+      <ReposStackNav.Screen name="IssueDetail" component={IssueDetailScreen} options={{ title: 'Issue' }} />
+      <ReposStackNav.Screen name="RepoGitHub" component={RepoGitHubScreen} options={{ title: 'GitHub Management' }} />
+      <ReposStackNav.Screen name="ZipUpload" component={ZipUploadScreen} options={{ title: 'Upload ZIP' }} />
+      <ReposStackNav.Screen name="Actions" component={ActionsListScreen} options={{ title: 'Actions' }} />
+      <ReposStackNav.Screen name="PullRequests" component={PullRequestListScreen} options={{ title: 'Pull Requests' }} />
+      <ReposStackNav.Screen name="PullRequestDetail" component={PullRequestDetailScreen} options={{ title: 'Pull Request' }} />
+      <ReposStackNav.Screen name="CreatePullRequest" component={CreatePullRequestScreen} options={{ title: 'New Pull Request' }} />
+      <ReposStackNav.Screen name="Releases" component={ReleasesListScreen} options={{ title: 'Releases' }} />
+      <ReposStackNav.Screen name="ReleaseDetail" component={ReleaseDetailScreen} options={{ title: 'Release' }} />
+      <ReposStackNav.Screen name="CreateRelease" component={CreateReleaseScreen} options={{ title: 'New Release' }} />
+      <ReposStackNav.Screen name="RunDetail" component={RunDetailScreen} options={{ title: 'Run' }} />
+      <ReposStackNav.Screen name="WorkflowDispatch" component={WorkflowDispatchScreen} options={{ title: 'Run Workflow' }} />
+      <ReposStackNav.Screen name="CodeSearch" component={CodeSearchScreen} options={{ title: 'Code Search' }} />
+    </ReposStackNav.Navigator>
+  );
+}
+
+function MainTabs() {
+  return (
+    <Tab.Navigator
+      screenOptions={{
+        headerShown: false,
+        tabBarShowLabel: true,
+        tabBarStyle: {
+          position: 'absolute',
+          borderTopWidth: 0,
+          backgroundColor: 'transparent',
+          elevation: 0,
+          height: 74,
+          paddingTop: 8,
+        },
+        // Glass tab bar: BlurView background rendered behind the flat
+        // tabBarStyle above (Android <31 falls back to a translucent tint
+        // inside BlurView itself, still reads as glass, not a flat box).
+        tabBarBackground: () => (
+          <BlurView
+            intensity={50}
+            tint="dark"
+            style={{
+              ...StyleSheet.absoluteFillObject,
+              borderTopWidth: 1,
+              borderTopColor: 'rgba(255,255,255,0.08)',
+            }}
+          />
+        ),
+        tabBarActiveTintColor: colors.accent,
+        tabBarInactiveTintColor: colors.fgSubtle,
+      }}
+    >
+      <Tab.Screen
+        name="Repos"
+        component={ReposStack}
+        options={{
+          tabBarLabel: 'Repos',
+          tabBarIcon: ({ focused }) => <PremiumIcon name="repo" active={focused} size={20} halo />,
+        }}
+      />
+      <Tab.Screen
+        name="Terminal"
+        component={TerminalScreen}
+        options={{
+          tabBarLabel: 'Terminal',
+          tabBarIcon: ({ focused }) => <PremiumIcon name="terminal" active={focused} size={20} halo />,
+          headerShown: true,
+          headerStyle: { backgroundColor: colors.bgSubtle },
+          headerTintColor: colors.fgDefault,
+          headerTitle: 'Terminal (Termux)',
+          headerLeft: () => <HamburgerButton />,
+        }}
+      />
+      <Tab.Screen
+        name="Codespaces"
+        component={CodespacesScreen}
+        options={({ navigation }) => ({
+          tabBarLabel: 'Codespaces',
+          tabBarIcon: ({ focused }) => <PremiumIcon name="actionsPlay" active={focused} size={20} halo />,
+          headerShown: true,
+          headerStyle: { backgroundColor: colors.bgSubtle },
+          headerTintColor: colors.fgDefault,
+          headerTitle: 'Codespaces',
+          headerLeft: () => <HamburgerButton />,
+          headerRight: () => (
+            <PremiumIcon
+              name="plus"
+              size={22}
+              onPress={() => navigation.navigate('CreateCodespace')}
+              style={{ marginRight: 16 }}
+              accessibilityLabel="Create codespace"
+            />
+          ),
+        })}
+      />
+      <Tab.Screen
+        name="Settings"
+        component={SettingsScreen}
+        options={{
+          tabBarLabel: 'Settings',
+          tabBarIcon: ({ focused }) => <PremiumIcon name="settingsGear" active={focused} size={20} halo />,
+          headerShown: true,
+          headerStyle: { backgroundColor: colors.bgSubtle },
+          headerTintColor: colors.fgDefault,
+          headerTitle: 'Settings',
+          headerLeft: () => <HamburgerButton />,
+        }}
+      />
+    </Tab.Navigator>
+  );
+}
+
+function AuthenticatedApp() {
+  React.useEffect(() => {
+    ensureBackgroundTaskRegistered().catch(() => {
+      // Background tasks are best-effort - if registration fails (e.g.
+      // battery optimization blocking it on some OEM ROMs), the app still
+      // works fine, it just won't get background completion notifications.
+    });
+  }, []);
+
+  React.useEffect(() => {
+    initDatabase().catch((e) => {
+      console.log('[db init error]', e.message);
+    });
+  }, []);
+
+  React.useEffect(() => {
+    // expo-navigation-bar v57 dropped setBackgroundColorAsync and
+    // setButtonStyleAsync - Android now enforces edge-to-edge system bars
+    // (no more custom nav-bar background color), matching the
+    // "edgeToEdgeEnabled is no longer available" warning app.json's config
+    // now avoids. setStyle('light') is the one knob still exposed: it
+    // controls whether the nav bar's icons/buttons are light or dark to
+    // stay readable against whatever content is now drawn behind them.
+    // Note: setStyle is synchronous (no promise returned) - a .catch()
+    // here would itself throw "undefined is not a function".
+    if (Platform.OS === 'android') {
+      try {
+        NavigationBar.setStyle('light');
+      } catch (e) {
+        // best-effort - some OEM ROMs restrict nav bar styling
+      }
+    }
+  }, []);
+
+  React.useEffect(() => {
+    // Push notifications are fully automatic: no settings toggle, no
+    // per-session prompt shown by this app (Android still shows its own
+    // one-time system permission dialog the first time, which is outside
+    // the app's control). If it was already enabled in a previous session,
+    // just re-attach the foreground/token-refresh listeners on cold start;
+    // otherwise register for the first time silently in the background.
+    isPushEnabled()
+      .then((enabled) => {
+        if (enabled) {
+          initFcmListeners();
+        } else {
+          enablePushNotifications().catch((e) => {
+            console.error('[FCM] automatic enable failed:', e);
+          });
+        }
+      })
+      .catch((e) => {
+        // Same SecureStore/Keystore failure mode as AuthContext - don't
+        // let a bad read here take the app down, push notifications just
+        // won't be enabled automatically this session.
+        console.error('[FCM] isPushEnabled failed:', e);
+      });
+  }, []);
+
+  React.useEffect(() => {
+    const handleUrl = (url) => {
+      if (!url || !url.startsWith('gitmanager://')) return;
+      // Manual parse instead of the URL API - polyfill behavior for
+      // non-http(s) custom schemes varies across RN/Hermes versions.
+      const withoutScheme = url.replace('gitmanager://', '');
+      const [pathPart, queryPart] = withoutScheme.split('?');
+      if (!pathPart.includes('actions')) return;
+
+      const params = {};
+      if (queryPart) {
+        for (const pair of queryPart.split('&')) {
+          const [key, value] = pair.split('=');
+          if (key && value) params[decodeURIComponent(key)] = decodeURIComponent(value);
+        }
+      }
+
+      if (params.owner && params.repo) {
+        navigate('MainTabs', {
+          screen: 'Repos',
+          params: { screen: 'Actions', params: { owner: params.owner, repo: params.repo } },
+        });
+      }
+    };
+
+    Linking.getInitialURL().then(handleUrl).catch((e) => {
+      console.error('[linking] getInitialURL failed:', e);
+    });
+    const subscription = Linking.addEventListener('url', (event) => handleUrl(event.url));
+    return () => subscription.remove();
+  }, []);
+
+  return (
+    <SidebarProvider>
+      <StagingProvider>
+      <RootStack.Navigator screenOptions={screenOptions}>
+        <RootStack.Screen name="MainTabs" component={MainTabs} options={{ headerShown: false }} />
+        <RootStack.Screen
+          name="Profile"
+          component={ProfileScreen}
+          options={{ title: 'Profile' }}
+        />
+        <RootStack.Screen
+          name="Issues"
+          component={IssuesScreen}
+          options={{ title: 'Your Issues' }}
+        />
+        <RootStack.Screen
+          name="Activity"
+          component={ActivityScreen}
+          options={{ title: 'Recent Activity' }}
+        />
+        <RootStack.Screen
+          name="WidgetSettings"
+          component={WidgetSettingsScreen}
+          options={{ title: 'Home Screen Widget' }}
+        />
+        <RootStack.Screen
+          name="Security"
+          component={SecurityScreen}
+          options={{ title: 'Security' }}
+        />
+        <RootStack.Screen
+          name="CodespaceWebView"
+          component={CodespaceWebViewScreen}
+          options={{ title: 'Codespace' }}
+        />
+        <RootStack.Screen
+          name="CreateCodespace"
+          component={CreateCodespaceScreen}
+          options={{ title: 'New Codespace' }}
+        />
+      </RootStack.Navigator>
+      <SidebarMenu />
+      <RecoveryBanner />
+      </StagingProvider>
+    </SidebarProvider>
+  );
+}
+
+function RootNavigator() {
+  const { token, loading } = useAuth();
+
+  if (loading) return <GlassSplash />;
+
+  return (
+    <NavigationContainer ref={navigationRef} theme={navTheme}>
+      {token ? (
+        <AuthenticatedApp />
+      ) : (
+        <RootStack.Navigator screenOptions={{ headerShown: false }}>
+          <RootStack.Screen name="Login" component={LoginScreen} />
+        </RootStack.Navigator>
+      )}
+    </NavigationContainer>
+  );
+}
+
+export default function App() {
+  return (
+    <ErrorBoundary>
+      <SafeAreaProvider>
+        <StatusBar style="light" backgroundColor={colors.bgDefault} />
+        <AuthProvider>
+          <RootNavigator />
+        </AuthProvider>
+      </SafeAreaProvider>
+    </ErrorBoundary>
+  );
+}

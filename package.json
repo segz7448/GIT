@@ -1,0 +1,79 @@
+{
+  "name": "gitmanager",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "scripts": {
+    "prebuild": "expo prebuild --platform android --clean",
+    "android:assemble": "cd android && ./gradlew assembleRelease",
+    "test": "jest",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "expo": "~57.0.1",
+    "expo-secure-store": "~57.0.0",
+    "expo-document-picker": "~57.0.0",
+    "expo-file-system": "~57.0.0",
+    "expo-sharing": "~57.0.1",
+    "expo-clipboard": "~57.0.0",
+    "expo-system-ui": "~57.0.0",
+    "expo-status-bar": "~57.0.1",
+    "expo-notifications": "~57.0.3",
+    "expo-background-task": "~57.0.2",
+    "expo-task-manager": "~57.0.2",
+    "expo-sqlite": "~57.0.0",
+    "expo-image": "~57.0.3",
+    "expo-blur": "~57.0.2",
+    "expo-linear-gradient": "~57.0.1",
+    "expo-haptics": "~57.0.1",
+    "expo-navigation-bar": "~57.0.2",
+    "expo-font": "~57.0.1",
+    "expo-modules-core": "~57.0.0",
+    "expo-crypto": "~57.0.0",
+    "react-native-reanimated": "~4.2.0",
+    "@expo/vector-icons": "^15.0.2",
+    "@react-native-firebase/app": "^22.2.1",
+    "@react-native-firebase/messaging": "^22.2.1",
+    "@react-native-async-storage/async-storage": "^2.1.0",
+    "react": "19.2.7",
+    "react-native": "0.86.0",
+    "react-native-webview": "14.0.1",
+    "@actualwave/react-native-codeditor": "^1.1.0",
+    "@react-navigation/native": "^7.3.5",
+    "@react-navigation/native-stack": "^7.17.7",
+    "@react-navigation/bottom-tabs": "^7.18.5",
+    "react-native-screens": "~4.25.2",
+    "react-native-safe-area-context": "~5.8.0",
+    "react-native-gesture-handler": "~2.32.0",
+    "jszip": "^3.10.1",
+    "diff": "^9.0.0",
+    "tweetnacl": "^1.0.3",
+    "tweetnacl-sealedbox-js": "^1.2.0",
+    "react-native-get-random-values": "^2.0.0",
+    "isomorphic-git": "^1.38.6",
+    "buffer": "^6.0.3",
+    "base-64": "^1.0.0",
+    "gitnative": "file:modules/gitnative"
+  },
+  "devDependencies": {
+    "babel-preset-expo": "~57.0.1",
+    "@babel/core": "^7.25.0",
+    "@expo/config-plugins": "~57.0.1",
+    "jest": "^29.7.0",
+    "jest-expo": "~57.0.0",
+    "typescript": "^5.7.0",
+    "@types/react": "~19.2.0",
+    "@babel/preset-typescript": "^7.25.0"
+  },
+  "overrides": {
+    "@react-native/jest-preset": "0.86.0"
+  },
+  "jest": {
+    "preset": "jest-expo",
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/android/",
+      "/ios/"
+    ]
+  }
+}

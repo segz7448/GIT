@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Status indicator dot as a real vector shape, tinted at runtime via
+  RemoteViews.setInt(id, "setColorFilter", color) — replaces the old
+  plain-text "●" glyph in the TextView-based version of this widget.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="12dp"
+    android:height="12dp"
+    android:viewportWidth="12"
+    android:viewportHeight="12">
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M6,1 A5,5 0 1,1 5.99,1 Z" />
+</vector>

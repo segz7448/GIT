@@ -1,0 +1,18 @@
+[package]
+name = "gitnative_core"
+version = "0.1.0"
+edition = "2021"
+
+# Built to a shared lib per Android ABI via cargo-ndk, then consumed by the
+# C++ JNI glue layer (android/src/main/cpp). See ../BUILD_NOTES.md.
+[lib]
+name = "gitnative_core"
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+sha2 = "0.10"
+
+[profile.release]
+lto = true
+opt-level = 3
+panic = "abort"

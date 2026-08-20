@@ -1,0 +1,55 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+
+group = 'expo.modules.gitnative'
+version = '0.1.0'
+
+def expoModulesCorePlugin = new File(project(":expo-modules-core").projectDir.absolutePath, "ExpoModulesCorePlugin.gradle")
+apply from: expoModulesCorePlugin
+applyKotlinExpoModulesCorePlugin()
+
+android {
+    namespace "expo.modules.gitnative"
+    compileSdkVersion safeExtGet("compileSdkVersion", 35)
+
+    defaultConfig {
+        minSdkVersion safeExtGet("minSdkVersion", 24)
+        targetSdkVersion safeExtGet("targetSdkVersion", 35)
+
+        externalNativeBuild {
+            cmake {
+                arguments "-DANDROID_STL=c++_shared"
+            }
+        }
+        ndk {
+            // Matches cargo-ndk's --target output dirs (see BUILD_NOTES.md)
+            abiFilters "arm64-v8a", "armeabi-v7a", "x86_64"
+        }
+    }
+
+    externalNativeBuild {
+        cmake {
+            path "src/main/cpp/CMakeLists.txt"
+            version "3.22.1"
+        }
+    }
+
+    // Ensures `cargo ndk build --release` runs (producing the .a files
+    // CMakeLists.txt links against) before the C++ build starts.
+    afterEvaluate {
+        preBuild.dependsOn("buildRustCore")
+    }
+}
+
+task buildRustCore(type: Exec) {
+    workingDir "${projectDir}/../rust"
+    commandLine "bash", "-c", "./build-android.sh"
+    // No-op with a clear log line if cargo-ndk isn't installed locally —
+    // CI/release builds are expected to have it (see BUILD_NOTES.md);
+    // local `expo prebuild` for pure-JS work shouldn't hard-fail on it.
+    ignoreExitValue = true
+}
+
+dependencies {
+    implementation project(':expo-modules-core')
+}

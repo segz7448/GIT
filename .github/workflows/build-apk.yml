@@ -1,0 +1,116 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: {}
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      HAS_RELEASE_KEYSTORE: ${{ secrets.RELEASE_KEYSTORE_BASE64 != '' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Check Expo package versions match SDK
+        # This is the check that would have caught the expo-font, expo-haptics,
+        # expo-linear-gradient, expo-navigation-bar, expo-status-bar, and
+        # expo-image version mismatches before they ever reached a device.
+        # Expo modules must match the installed Expo SDK's major version
+        # (SDK 57 -> expo-*@57.x) - a mismatched module compiles fine but
+        # throws NoSuchMethodError/NoClassDefFoundError against
+        # expo-modules-core at runtime, on the very first launch, with no
+        # JS-level error boundary able to catch it. `--fix` auto-corrects
+        # package.json instead of just warning, so a stale pin like this
+        # can't silently sit in the repo again.
+        run: npx expo install --fix
+
+      - name: Write google-services.json
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -z "$GOOGLE_SERVICES_JSON" ]; then
+            echo "::error::GOOGLE_SERVICES_JSON secret is not set. Add it in" \
+                 "Settings > Secrets and variables > Actions - paste the full" \
+                 "contents of your google-services.json file as the secret value."
+            exit 1
+          fi
+          echo "$GOOGLE_SERVICES_JSON" > google-services.json
+
+      - name: Prebuild native Android project
+        run: npx expo prebuild --platform android --clean --no-install
+        # This runs entirely locally - it generates the android/ folder
+        # from app.json + installed config plugins. No Expo account,
+        # token, or cloud service is contacted.
+
+      - name: Fix notification manifest merge conflict
+        # @react-native-firebase/messaging's bundled AndroidManifest.xml
+        # declares com.google.firebase.messaging.default_notification_color
+        # (and ...default_notification_icon) pointing at @color/white.
+        # expo-notifications' plugin declares the same keys pointing at our
+        # custom color/icon. Gradle treats two different values for the
+        # same manifest attribute as a hard error and refuses to build -
+        # this was the actual cause of the build never producing an APK.
+        # See scripts/fix-notification-manifest.js for the full story.
+        run: node scripts/fix-notification-manifest.js
+
+      - name: Decode release keystore
+        if: env.HAS_RELEASE_KEYSTORE == 'true'
+        env:
+          RELEASE_KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
+        run: |
+          echo "$RELEASE_KEYSTORE_BASE64" | base64 -d > android/app/release.keystore
+
+      - name: Make gradlew executable
+        run: chmod +x android/gradlew
+
+      - name: Build debug APK
+        working-directory: android
+        # Debug build first, and deliberately not gated behind the release
+        # keystore check - this is unsigned-for-debug (uses the auto
+        # generated debug.keystore) and unminified, so if the app crashes
+        # this is what actually shows a real stack trace via
+        # `adb logcat` (or the red screen / native crash dialog on-device)
+        # instead of the obfuscated, hard-to-read output a release build
+        # would give you.
+        run: ./gradlew assembleDebug --stacktrace
+
+      - name: Upload debug APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitmanager-debug-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 30
+
+      - name: Build release APK
+        working-directory: android
+        env:
+          RELEASE_STORE_FILE: release.keystore
+          RELEASE_STORE_PASSWORD: ${{ secrets.RELEASE_STORE_PASSWORD }}
+          RELEASE_KEY_ALIAS: ${{ secrets.RELEASE_KEY_ALIAS }}
+          RELEASE_KEY_PASSWORD: ${{ secrets.RELEASE_KEY_PASSWORD }}
+        run: ./gradlew assembleRelease --stacktrace
+
+      - name: Upload release APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: gitmanager-release-apk
+          path: android/app/build/outputs/apk/release/app-release.apk
+          retention-days: 30

@@ -1,0 +1,28 @@
+{
+  "extends": "expo/tsconfig.base",
+  "compilerOptions": {
+    "strict": false,
+    "strictNullChecks": true,
+    "noImplicitReturns": true,
+    // noImplicitAny is intentionally off during the Phase 3 migration -
+    // screens are converted to valid, working TS with top-level prop
+    // typing, but exhaustively typing every internal callback/render-item
+    // function across 35 screens is follow-up hygiene work, not a
+    // blocker for the migration itself. Tighten this once that pass
+    // happens (see ROADMAP_REWRITE.md).
+    "noImplicitAny": false,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@native/*": ["modules/gitnative/*"]
+    },
+    "jsx": "react-native",
+    "resolveJsonModule": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowJs": true,
+    "checkJs": false
+  },
+  "include": ["**/*.ts", "**/*.tsx", "App.js", "index.js"],
+  "exclude": ["node_modules", "android", "modules/gitnative/rust/target"]
+}

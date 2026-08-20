@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Glass-panel background for the home screen widget. RemoteViews can't do
+  a real blur (no BlurView equivalent), so this fakes the glass look with
+  a dark gradient fill + a light hairline border, matching the in-app
+  glass token values (see src/theme/tokens.ts `glass`/`gradient`).
+-->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <corners android:radius="20dp" />
+    <gradient
+        android:type="linear"
+        android:angle="135"
+        android:startColor="#1a2030"
+        android:centerColor="#11151f"
+        android:endColor="#0a0d14" />
+    <stroke android:width="1dp" android:color="#33ffffff" />
+</shape>
