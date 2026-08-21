@@ -247,3 +247,37 @@ content will still render in the dark palette's colors regardless of
 the selected theme, until each screen is individually converted the
 same way (a bounded, mechanical-per-file task, but a real one - not
 done in this pass).
+
+## Post-Phase-7 revision 3: CI build fixes (from real GitHub Actions logs)
+
+Two real CI failures found and fixed, both from actual uploaded build
+logs, not guessed:
+
+1. **`npm install` ERESOLVE**: `react-native-reanimated` had been pinned
+   to `~4.2.0` (only supports RN 0.80-0.84) against this project's RN
+   0.86.0. Searched and confirmed Expo SDK 57 bundles
+   `react-native-reanimated ~4.5`, which also requires
+   `react-native-worklets` as a peer dependency that had never been
+   added. Fixed: `react-native-reanimated` bumped to `~4.5.0`,
+   `react-native-worklets ~0.10.0` added.
+2. **Native APK build failure**: with the above fixed, the build got
+   much further (through prebuild) but failed in `:gitnative:buildCMakeDebug`
+   - ninja couldn't find `libgitnative_core.a` because the CI runner has
+   no Rust/cargo-ndk toolchain, so `buildRustCore` correctly no-op'd
+   (by design, per Phase 2), but CMake was still unconditionally wired
+   up to expect and link against that file, so the native build failed
+   hard instead of skipping. Root cause: the "graceful JS fallback"
+   design only covered the *JS runtime* (`modules/gitnative/index.ts`'s
+   try/catch around `requireNativeModule`) - the *native CMake build
+   itself* was never actually conditional. Fixed in
+   `modules/gitnative/android/build.gradle`: checks at Gradle
+   configuration time whether the Rust `.a` files already exist on disk
+   for all three ABIs, and only wires up `externalNativeBuild`/CMake
+   if they do. Without them, the module still compiles and packages as
+   a pure-Kotlin library; `System.loadLibrary()` throws
+   `UnsatisfiedLinkError` at runtime, already caught by
+   `GitNativeModule.kt`, falling back to JS as intended. Removed the
+   previous (non-functional) `preBuild.dependsOn(buildRustCore)` task
+   wiring, since AGP configures CMake at configuration time, before any
+   task dependency could run - that ordering assumption was the actual
+   bug.

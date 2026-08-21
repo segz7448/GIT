@@ -8,6 +8,37 @@ def expoModulesCorePlugin = new File(project(":expo-modules-core").projectDir.ab
 apply from: expoModulesCorePlugin
 applyKotlinExpoModulesCorePlugin()
 
+// The Rust core is a separate build step (rust/build-android.sh via
+// cargo-ndk) that must run BEFORE Gradle configures this module - AGP
+// wires up its CMake/ninja tasks at configuration time based on the
+// `externalNativeBuild` DSL block below, so a task dependency like
+// `preBuild.dependsOn(buildRustCore)` does NOT help here: by the time
+// that task would execute, CMake has already been configured to expect
+// files that don't exist yet, and the build fails hard.
+//
+// So instead: check right now, at configuration time, whether the
+// static libs already exist on disk (because a prior, separate step -
+// local dev running build-android.sh manually, or a CI step with the
+// Rust toolchain installed - already produced them). If they don't,
+// skip wiring up CMake entirely. The Kotlin module still compiles and
+// packages fine either way; without the native .so, its runtime
+// System.loadLibrary() call throws UnsatisfiedLinkError, which
+// GitNativeModule.kt already catches and treats as "use the JS
+// fallback" - see modules/gitnative/fallback.ts.
+def rustAbis = ["arm64-v8a", "armeabi-v7a", "x86_64"]
+def rustTargetDir = new File(projectDir, "../rust/target")
+def hasNativeRustCore = rustAbis.every { abi ->
+    new File(rustTargetDir, "${abi}/release/libgitnative_core.a").exists()
+}
+if (!hasNativeRustCore) {
+    logger.warn(
+        "[gitnative] Rust core .a files not found under modules/gitnative/rust/target/ - " +
+        "building this module WITHOUT native acceleration (JS fallback will be used at " +
+        "runtime). Run modules/gitnative/rust/build-android.sh before `gradlew`/`expo run` " +
+        "if you want the native path built."
+    )
+}
+
 android {
     namespace "expo.modules.gitnative"
     compileSdkVersion safeExtGet("compileSdkVersion", 35)
@@ -16,37 +47,36 @@ android {
         minSdkVersion safeExtGet("minSdkVersion", 24)
         targetSdkVersion safeExtGet("targetSdkVersion", 35)
 
-        externalNativeBuild {
-            cmake {
-                arguments "-DANDROID_STL=c++_shared"
+        if (hasNativeRustCore) {
+            externalNativeBuild {
+                cmake {
+                    arguments "-DANDROID_STL=c++_shared"
+                }
+            }
+            ndk {
+                // Matches cargo-ndk's --target output dirs (see BUILD_NOTES.md)
+                abiFilters(*rustAbis)
             }
         }
-        ndk {
-            // Matches cargo-ndk's --target output dirs (see BUILD_NOTES.md)
-            abiFilters "arm64-v8a", "armeabi-v7a", "x86_64"
-        }
     }
 
-    externalNativeBuild {
-        cmake {
-            path "src/main/cpp/CMakeLists.txt"
-            version "3.22.1"
+    if (hasNativeRustCore) {
+        externalNativeBuild {
+            cmake {
+                path "src/main/cpp/CMakeLists.txt"
+                version "3.22.1"
+            }
         }
-    }
-
-    // Ensures `cargo ndk build --release` runs (producing the .a files
-    // CMakeLists.txt links against) before the C++ build starts.
-    afterEvaluate {
-        preBuild.dependsOn("buildRustCore")
     }
 }
 
+// Available for local/manual use (`./gradlew :gitnative:buildRustCore`)
+// or for a CI step that has the Rust toolchain installed to run before
+// this module's Gradle configuration runs. Not wired up as an automatic
+// task dependency - see the comment above for why that doesn't work.
 task buildRustCore(type: Exec) {
     workingDir "${projectDir}/../rust"
     commandLine "bash", "-c", "./build-android.sh"
-    // No-op with a clear log line if cargo-ndk isn't installed locally —
-    // CI/release builds are expected to have it (see BUILD_NOTES.md);
-    // local `expo prebuild` for pure-JS work shouldn't hard-fail on it.
     ignoreExitValue = true
 }
 
