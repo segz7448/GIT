@@ -62,7 +62,7 @@ export default function WidgetSettingsScreen() {
         'Watching started',
         'A persistent notification will show while this is active - Android requires this for ' +
           'any app running continuous background work. Long-press your home screen and add the ' +
-          '"GitManager" widget if you haven\'t already.'
+          '"GIT" widget if you haven\'t already.'
       );
     } catch (e) {
       Alert.alert('Failed to start', e.message);
@@ -109,7 +109,7 @@ export default function WidgetSettingsScreen() {
         )}
         <Text style={styles.widgetCountText}>
           {placedCount === 0
-            ? 'No widget on your home screen yet - long-press your home screen, tap Widgets, and add "GitManager".'
+            ? 'No widget on your home screen yet - long-press your home screen, tap Widgets, and add "GIT".'
             : `${placedCount} widget(s) on your home screen.`}
         </Text>
       </View>

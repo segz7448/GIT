@@ -1,7 +1,7 @@
 import * as SQLite from 'expo-sqlite';
 
 /**
- * Central local persistence layer for GitManager.
+ * Central local persistence layer for GIT.
  *
  * This gives the app a real database layer instead of relying purely on
  * in-memory React state, which previously meant:

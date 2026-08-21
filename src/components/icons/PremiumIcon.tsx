@@ -9,7 +9,7 @@ import Animated, {
   interpolateColor,
 } from 'react-native-reanimated';
 import { ICON_MAP } from './glyphs';
-import { palette, motion, glass, radius } from '../../theme/tokens';
+import { useTheme } from '../../theme/ThemeContext';
 
 const AnimatedIonicons = Animated.createAnimatedComponent(Ionicons);
 
@@ -38,19 +38,25 @@ export interface PremiumIconProps {
  *
  * This is never a plain static <Ionicons> render and never emoji - the
  * animation/halo/active-swap chrome is what makes it "premium" rather
- * than "basic".
+ * than "basic". Colors default from useTheme() so icons correctly
+ * switch between the dark and light theme without callers needing to
+ * pass explicit colors.
  */
 export default function PremiumIcon({
   name,
   size = 24,
   active = false,
-  color = palette.ink300,
-  activeColor = palette.azureBright,
+  color,
+  activeColor,
   halo = false,
   onPress,
   style,
   accessibilityLabel,
 }: PremiumIconProps) {
+  const { palette, glass, motion, radius } = useTheme();
+  const resolvedColor = color ?? palette.ink300;
+  const resolvedActiveColor = activeColor ?? palette.azureBright;
+
   const pressed = useSharedValue(0);
   const activeProgress = useSharedValue(active ? 1 : 0);
 
@@ -66,17 +72,17 @@ export default function PremiumIcon({
   }));
 
   const iconAnimatedStyle = useAnimatedStyle(() => ({
-    color: interpolateColor(activeProgress.value, [0, 1], [color, activeColor]),
+    color: interpolateColor(activeProgress.value, [0, 1], [resolvedColor, resolvedActiveColor]),
     opacity: 1 - pressed.value * 0.15,
   }));
 
+  const haloRestBg = glass.fill.thin;
+  const haloActiveBg = palette.azure + '29'; // ~16% alpha accent wash
+  const haloActiveBorder = palette.azureBright + '8c'; // ~55% alpha
+
   const haloStyle = useAnimatedStyle(() => ({
-    backgroundColor: interpolateColor(
-      activeProgress.value,
-      [0, 1],
-      ['rgba(255,255,255,0.05)', 'rgba(79,141,255,0.16)']
-    ),
-    borderColor: interpolateColor(activeProgress.value, [0, 1], [glass.border, 'rgba(125,178,255,0.55)']),
+    backgroundColor: interpolateColor(activeProgress.value, [0, 1], [haloRestBg, haloActiveBg]),
+    borderColor: interpolateColor(activeProgress.value, [0, 1], [glass.border, haloActiveBorder]),
   }));
 
   const handlePressIn = useCallback(() => {
@@ -93,7 +99,11 @@ export default function PremiumIcon({
   );
 
   const content = halo ? (
-    <Animated.View style={[styles.halo, { width: size + 22, height: size + 22 }, haloStyle]}>{glyph}</Animated.View>
+    <Animated.View
+      style={[styles.halo, { width: size + 22, height: size + 22, borderRadius: radius.pill }, haloStyle]}
+    >
+      {glyph}
+    </Animated.View>
   ) : (
     glyph
   );
@@ -125,7 +135,6 @@ const styles = StyleSheet.create({
   halo: {
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: radius.pill,
     borderWidth: 1,
   },
 });

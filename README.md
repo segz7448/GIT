@@ -1,4 +1,4 @@
-# GitManager
+# GIT
 
 A personal GitHub control panel — manage repos, browse/edit files, upload zip
 archives as commits, monitor GitHub Actions runs, and get plain-English

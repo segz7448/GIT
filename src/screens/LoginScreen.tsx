@@ -62,7 +62,7 @@ export default function LoginScreen() {
               >
                 <PremiumIcon name="branch" size={30} color="#fff" />
               </LinearGradient>
-              <Text style={styles.title}>GitManager</Text>
+              <Text style={styles.title}>GIT</Text>
               <Text style={styles.subtitle}>Your personal GitHub control panel</Text>
             </View>
 

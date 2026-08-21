@@ -348,11 +348,11 @@ export default function TerminalScreen() {
       <View style={styles.centerContainer}>
         <Text style={styles.setupTitle}>Permission needed</Text>
         <Text style={styles.setupText}>
-          GitManager needs the "Run commands in Termux environment" permission, and Termux needs
+          GIT needs the "Run commands in Termux environment" permission, and Termux needs
           external apps allowed. Two steps:
           {'\n\n'}1. In Termux, run:{'\n'}
           <Text style={styles.code}>{SETUP_COMMANDS}</Text>
-          {'\n\n'}2. Grant the permission in Android Settings → Apps → GitManager → Permissions.
+          {'\n\n'}2. Grant the permission in Android Settings → Apps → GIT → Permissions.
         </Text>
         <TouchableOpacity
           style={styles.copyButton}
@@ -424,7 +424,7 @@ export default function TerminalScreen() {
             Commands run in your real Termux environment — actual bash, actual git, your actual
             filesystem. Output streams in by polling a log file every {POLL_INTERVAL_MS / 1000}s
             (Android's RUN_COMMAND has no live-streaming channel, so this is the closest
-            equivalent). Try: git -C ~/GitManager status
+            equivalent). Try: git -C ~/GIT status
           </Text>
         ) : setupErrorText ? (
           <View style={styles.setupCallout}>

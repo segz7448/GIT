@@ -209,7 +209,7 @@ export default function RunDetailScreen({ route, navigation }: any) {
     if (!granted) {
       Alert.alert(
         'Notifications disabled',
-        'Enable notifications for GitManager in Android Settings to get alerted when this run finishes.'
+        'Enable notifications for GIT in Android Settings to get alerted when this run finishes.'
       );
       return;
     }

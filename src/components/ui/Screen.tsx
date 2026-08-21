@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ViewStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
-import { palette } from '../../theme/tokens';
+import { useTheme } from '../../theme/ThemeContext';
 
 export interface ScreenProps {
   children?: React.ReactNode;
@@ -9,17 +9,16 @@ export interface ScreenProps {
 }
 
 /**
- * Deep-space top-to-bottom gradient wash instead of a flat background
- * color — depth without touching every screen's layout logic.
+ * Background gradient wash instead of a flat color - depth without
+ * touching every screen's layout logic. Reads `gradient.surfaceDepth`
+ * from useTheme() at render time (not a module-scope StyleSheet), so it
+ * switches correctly between the dark and light theme.
  */
 export default function Screen({ children, style }: ScreenProps) {
+  const { gradient } = useTheme();
   return (
     <View style={[styles.flex, style]}>
-      <LinearGradient
-        colors={[palette.space700, palette.space800, palette.space900]}
-        locations={[0, 0.4, 1]}
-        style={StyleSheet.absoluteFill}
-      />
+      <LinearGradient colors={gradient.surfaceDepth} locations={[0, 0.4, 1]} style={StyleSheet.absoluteFill} />
       {children}
     </View>
   );

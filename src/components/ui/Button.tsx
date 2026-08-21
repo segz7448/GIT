@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, ActivityIndicator, StyleSheet, Pressable, ViewStyle, TextStyle } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { spacing, typography, radii } from '../../theme';
-import { palette, gradient, glass } from '../../theme/tokens';
+import { useTheme } from '../../theme/ThemeContext';
 import { haptic } from '../../utils/haptics';
 import PremiumIcon from '../icons/PremiumIcon';
 import { resolveGlyphName } from '../icons/legacyMap';
@@ -45,6 +45,7 @@ export default function Button({
   textStyle,
   hapticStyle = 'tap',
 }: ButtonProps) {
+  const { palette, gradient, glass } = useTheme();
   const dims = SIZES[size] || SIZES.md;
   const isFilled = variant === 'primary' || variant === 'success' || variant === 'danger';
   const isGhost = variant === 'ghost';
@@ -72,8 +73,8 @@ export default function Button({
               styles.text,
               { fontSize: dims.fontSize },
               isFilled && styles.textFilled,
-              variant === 'secondary' && styles.textSecondary,
-              isGhost && styles.textGhost,
+              variant === 'secondary' && { color: palette.ink100 },
+              isGhost && { color: palette.azureBright },
               textStyle,
             ]}
             numberOfLines={1}
@@ -114,7 +115,7 @@ export default function Button({
       disabled={disabled || loading}
       style={({ pressed }) => [
         baseStyle,
-        variant === 'secondary' && styles.secondary,
+        variant === 'secondary' && { backgroundColor: glass.fill.regular, borderWidth: 1, borderColor: glass.border },
         isGhost && styles.ghostBox,
         pressed && styles.pressed,
       ]}
@@ -135,19 +136,9 @@ const styles = StyleSheet.create({
   fullWidth: { width: '100%' },
   disabled: { opacity: 0.5 },
   pressed: { opacity: 0.85, transform: [{ scale: 0.98 }] },
-  secondary: {
-    backgroundColor: glass.fill.regular,
-    borderWidth: 1,
-    borderColor: glass.border,
-  },
-  ghostBox: {
-    backgroundColor: 'transparent',
-    paddingHorizontal: spacing.sm,
-  },
+  ghostBox: { backgroundColor: 'transparent', paddingHorizontal: spacing.sm },
   text: { fontWeight: '600' },
   textFilled: { color: '#fff' },
-  textSecondary: { color: palette.ink100 },
-  textGhost: { color: palette.azureBright },
   iconLeft: { marginRight: spacing.xs },
   iconRight: { marginLeft: spacing.xs },
 });

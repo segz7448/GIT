@@ -186,3 +186,64 @@ call sites needed changes, only `glyphs.ts`/`legacyMap.ts`/
 - Re-verified: full-project emoji sweep still clean, all imports across
   the entire codebase still resolve, all external packages still
   declared in `package.json`
+
+## Post-Phase-7 revision 2: app rename to "GIT" + light/dark/system theme
+
+### Rename
+Every user-visible "GitManager" string renamed to "GIT" across
+`app.json`, screens, services, README, and two native Kotlin files
+(notification text, Termux permission instructions). Deliberately NOT
+changed: Android package id (`com.zenas.gitmanager`), deep-link scheme
+(`gitmanager://`), notification channel ids, and the real Termux job
+directory path (`~/.gitmanager/jobs/`) - these are functional
+identifiers, not display text; renaming them would require coordinated
+native-code + Firebase config + possibly Termux-side script changes for
+zero user-visible benefit. Verified with a full-codebase sweep: zero
+"GitManager" strings remain anywhere visible.
+
+### Theme system (system / dark / light)
+Built the real infrastructure and applied it completely to the app
+shell and shared UI kit - the honest engineering constraint here: RN's
+`StyleSheet.create({...})` bakes color values in at **module load
+time**, not render time, so a component only responds live to a theme
+change if its colors are read from a hook inside the render function,
+not from a static top-level import. Retrofitting that requires editing
+each file individually; it can't be done by mutating a shared object.
+
+**Built:**
+- `src/theme/themes.ts` - complete light + dark palette pairs, both for
+  the flat `colors` shape and the glassmorphic `palette`/`glass`/
+  `gradient` shape
+- `src/theme/ThemeContext.tsx` - `ThemeProvider` + `useTheme()`, with
+  `system` mode following `useColorScheme()` live, and the chosen mode
+  persisted via SecureStore (same pattern as other small preference
+  flags in this app, e.g. `fcm_push_enabled_v1`)
+- Settings screen: a real "Appearance" section with System/Dark/Light
+  chips, showing which the app is currently resolving to when on System
+
+**Converted to read colors from `useTheme()` at render time (verified
+via `grep` - 15 files total):**
+- `App.js` - StatusBar, navigation theme, tab bar, all header colors
+- `src/components/SidebarMenu.js` - the side drawer
+- All 10 files in `src/components/ui/` (`Screen`, `Card`, `Button`,
+  `IconButton`, `Input`, `Badge`, `Avatar`, `SectionLabel`, `GlassPanel`,
+  `EmptyState`) - since nearly every screen is built from these, this
+  is what makes buttons/cards/inputs/badges consistently retheme
+  wherever they're used
+- `src/components/icons/PremiumIcon.tsx` - so every icon in the app
+  (which all route through this one component - verified earlier)
+  retints correctly
+- `src/screens/SettingsScreen.tsx` - hosts the picker, fully converted
+
+**Explicitly NOT yet theme-reactive** (still hardcoded to the dark
+palette via `theme.js`'s static `colors` export): the other 36 screens'
+*own* custom-styled content - text, backgrounds, and layout elements
+each screen defines directly in its own module-scope `StyleSheet.create`
+rather than composing the shared UI kit. Toggling the theme will
+correctly reskin navigation, tab bar, side menu, all buttons/cards/
+inputs/badges/icons everywhere, and the Settings screen itself - but a
+screen's own bespoke `<Text style={{color: colors.fgMuted}}>`-style
+content will still render in the dark palette's colors regardless of
+the selected theme, until each screen is individually converted the
+same way (a bounded, mechanical-per-file task, but a real one - not
+done in this pass).

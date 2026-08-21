@@ -133,7 +133,7 @@ export default function CodespacesScreen({ navigation }: any) {
     if (nowEnabled) {
       Alert.alert(
         'Auto-restart enabled',
-        `While GitManager is open, if GitHub stops "${codespace.display_name || codespace.name}" for being idle, it'll be started back up automatically - usually within a minute of being detected stopped. This can't prevent the idle stop itself (only real activity inside the codespace does that), just shorten how long it stays stopped.`
+        `While GIT is open, if GitHub stops "${codespace.display_name || codespace.name}" for being idle, it'll be started back up automatically - usually within a minute of being detected stopped. This can't prevent the idle stop itself (only real activity inside the codespace does that), just shorten how long it stays stopped.`
       );
     }
   };
@@ -245,7 +245,7 @@ export default function CodespacesScreen({ navigation }: any) {
               {codespaces.length > 0 && (
                 <View style={styles.infoCard}>
                   <Text style={styles.infoCardText}>
-                    "Auto-restart" checks periodically while GitManager is open and starts a
+                    "Auto-restart" checks periodically while GIT is open and starts a
                     codespace back up if GitHub has stopped it for being idle. It can't stop the
                     idle timeout from happening in the first place - only real activity inside the
                     codespace does that - it just shortens how long it stays stopped.

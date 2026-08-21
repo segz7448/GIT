@@ -59,6 +59,9 @@ export const ICON_MAP: Record<string, IconEntry> = {
   addCircle: { outline: 'add-circle-outline', filled: 'add-circle' },
   key: { outline: 'key-outline', filled: 'key' },
   external: { outline: 'open-outline', filled: 'open' },
+  themeSystem: { outline: 'contrast-outline', filled: 'contrast' },
+  themeDark: { outline: 'moon-outline', filled: 'moon' },
+  themeLight: { outline: 'sunny-outline', filled: 'sunny' },
 };
 
 export type GlyphName = keyof typeof ICON_MAP;

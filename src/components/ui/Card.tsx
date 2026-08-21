@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, Pressable, ViewStyle } from 'react-native';
 import { spacing } from '../../theme';
-import { glass, radius, elevationGlass } from '../../theme/tokens';
+import { useTheme } from '../../theme/ThemeContext';
 import { haptic } from '../../utils/haptics';
 
 export interface CardProps {
@@ -9,16 +9,27 @@ export interface CardProps {
   style?: ViewStyle;
   onPress?: () => void;
   inset?: boolean;
-  level?: keyof typeof elevationGlass;
+  level?: 'none' | 'sm' | 'md' | 'lg';
   disabled?: boolean;
 }
 
 /**
  * Base glass surface used everywhere: list rows, detail panels, modal
  * sheets. Pass onPress to make it tappable (adds haptic + press feedback).
+ * Colors/elevation come from useTheme() at render time so this correctly
+ * switches between the dark and light theme.
  */
 export default function Card({ children, style, onPress, inset = false, level = 'sm', disabled }: CardProps) {
-  const surfaceStyle = [styles.base, inset ? styles.inset : styles.subtle, elevationGlass[level], style];
+  const { glass, radius, elevationGlass } = useTheme();
+  const surfaceStyle = [
+    styles.base,
+    { borderRadius: radius.lg },
+    inset
+      ? { backgroundColor: glass.fill.thin, borderColor: glass.border }
+      : { backgroundColor: glass.fill.regular, borderColor: glass.border },
+    elevationGlass[level],
+    style,
+  ];
 
   if (onPress) {
     return (
@@ -39,12 +50,6 @@ export default function Card({ children, style, onPress, inset = false, level = 
 }
 
 const styles = StyleSheet.create({
-  base: {
-    borderRadius: radius.lg,
-    borderWidth: 1,
-    padding: spacing.md,
-  },
-  subtle: { backgroundColor: glass.fill.regular, borderColor: glass.border },
-  inset: { backgroundColor: glass.fill.thin, borderColor: glass.border },
+  base: { borderWidth: 1, padding: spacing.md },
   pressed: { opacity: 0.8, transform: [{ scale: 0.995 }] },
 });

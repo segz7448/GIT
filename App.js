@@ -14,12 +14,12 @@ import PremiumIcon from './src/components/icons/PremiumIcon';
 import { AuthProvider, useAuth } from './src/context/AuthContext';
 import { SidebarProvider, useSidebar } from './src/context/SidebarContext';
 import { StagingProvider } from './src/context/StagingContext';
+import { ThemeProvider, useTheme } from './src/theme/ThemeContext';
 import SidebarMenu from './src/components/SidebarMenu';
 import RecoveryBanner from './src/components/RecoveryBanner';
 import { navigationRef, navigate } from './src/navigation';
 import { ensureBackgroundTaskRegistered } from './src/backgroundTasks';
 import { initDatabase } from './src/db/database';
-import { colors } from './src/theme';
 
 import LoginScreen from './src/screens/LoginScreen';
 import RepoListScreen from './src/screens/RepoListScreen';
@@ -65,24 +65,36 @@ const RootStack = createNativeStackNavigator();
 const ReposStackNav = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-const navTheme = {
-  ...DarkTheme,
-  colors: {
-    ...DarkTheme.colors,
-    background: colors.bgDefault,
-    card: colors.bgSubtle,
-    border: colors.border,
-    text: colors.fgDefault,
-    primary: colors.accent,
-  },
-};
+function useNavTheme() {
+  const { colors } = useTheme();
+  return React.useMemo(
+    () => ({
+      ...DarkTheme,
+      colors: {
+        ...DarkTheme.colors,
+        background: colors.bgDefault,
+        card: colors.bgSubtle,
+        border: colors.border,
+        text: colors.fgDefault,
+        primary: colors.accent,
+      },
+    }),
+    [colors]
+  );
+}
 
-const screenOptions = {
-  headerStyle: { backgroundColor: colors.bgSubtle },
-  headerTintColor: colors.fgDefault,
-  headerTitleStyle: { color: colors.fgDefault },
-  contentStyle: { backgroundColor: colors.bgDefault },
-};
+function useStackScreenOptions() {
+  const { colors } = useTheme();
+  return React.useMemo(
+    () => ({
+      headerStyle: { backgroundColor: colors.bgSubtle },
+      headerTintColor: colors.fgDefault,
+      headerTitleStyle: { color: colors.fgDefault },
+      contentStyle: { backgroundColor: colors.bgDefault },
+    }),
+    [colors]
+  );
+}
 
 function HamburgerButton() {
   const { open } = useSidebar();
@@ -98,6 +110,7 @@ function HamburgerButton() {
 }
 
 function ReposStack() {
+  const screenOptions = useStackScreenOptions();
   return (
     <ReposStackNav.Navigator screenOptions={screenOptions}>
       <ReposStackNav.Screen
@@ -135,6 +148,7 @@ function ReposStack() {
 }
 
 function MainTabs() {
+  const { colors, scheme, glass } = useTheme();
   return (
     <Tab.Navigator
       screenOptions={{
@@ -154,11 +168,11 @@ function MainTabs() {
         tabBarBackground: () => (
           <BlurView
             intensity={50}
-            tint="dark"
+            tint={scheme === 'light' ? 'light' : 'dark'}
             style={{
               ...StyleSheet.absoluteFillObject,
               borderTopWidth: 1,
-              borderTopColor: 'rgba(255,255,255,0.08)',
+              borderTopColor: glass.border,
             }}
           />
         ),
@@ -227,6 +241,8 @@ function MainTabs() {
 }
 
 function AuthenticatedApp() {
+  const screenOptions = useStackScreenOptions();
+
   React.useEffect(() => {
     ensureBackgroundTaskRegistered().catch(() => {
       // Background tasks are best-effort - if registration fails (e.g.
@@ -367,6 +383,7 @@ function AuthenticatedApp() {
 
 function RootNavigator() {
   const { token, loading } = useAuth();
+  const navTheme = useNavTheme();
 
   if (loading) return <GlassSplash />;
 
@@ -383,15 +400,22 @@ function RootNavigator() {
   );
 }
 
+function ThemedStatusBar() {
+  const { scheme, colors } = useTheme();
+  return <StatusBar style={scheme === 'light' ? 'dark' : 'light'} backgroundColor={colors.bgDefault} />;
+}
+
 export default function App() {
   return (
     <ErrorBoundary>
-      <SafeAreaProvider>
-        <StatusBar style="light" backgroundColor={colors.bgDefault} />
-        <AuthProvider>
-          <RootNavigator />
-        </AuthProvider>
-      </SafeAreaProvider>
+      <ThemeProvider>
+        <SafeAreaProvider>
+          <ThemedStatusBar />
+          <AuthProvider>
+            <RootNavigator />
+          </AuthProvider>
+        </SafeAreaProvider>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }

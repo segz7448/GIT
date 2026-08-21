@@ -168,7 +168,7 @@ class RepoActionsMonitorService : Service() {
                 "Repo Actions Monitoring",
                 NotificationManager.IMPORTANCE_LOW
             )
-            channel.description = "Shows while GitManager is watching a repo's Actions runs for the home screen widget"
+            channel.description = "Shows while GIT is watching a repo's Actions runs for the home screen widget"
             val manager = getSystemService(NotificationManager::class.java)
             manager.createNotificationChannel(channel)
         }
@@ -188,7 +188,7 @@ class RepoActionsMonitorService : Service() {
         )
 
         return NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("GitManager - watching repo")
+            .setContentTitle("GIT - watching repo")
             .setContentText(contentText)
             .setSmallIcon(R.drawable.ic_notification_sync)
             .setOngoing(true)

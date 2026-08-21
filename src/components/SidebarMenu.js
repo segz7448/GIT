@@ -15,7 +15,7 @@ import { navigate } from '../navigation';
 import { useSidebar } from '../context/SidebarContext';
 import { useAuth } from '../context/AuthContext';
 import { spacing, typography } from '../theme';
-import { palette, gradient, glass, radius } from '../theme/tokens';
+import { useTheme } from '../theme/ThemeContext';
 import PremiumIcon from './icons/PremiumIcon';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -34,6 +34,7 @@ const MENU_ITEMS = [
 export default function SidebarMenu() {
   const { isOpen, close } = useSidebar();
   const { username, logout } = useAuth();
+  const { scheme, palette, gradient, glass, radius } = useTheme();
   const [activeKey, setActiveKey] = useState(null);
   const translateX = useRef(new Animated.Value(-DRAWER_WIDTH)).current;
   const overlayOpacity = useRef(new Animated.Value(0)).current;
@@ -115,8 +116,14 @@ export default function SidebarMenu() {
         <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={close} />
       </Animated.View>
 
-      <Animated.View style={[styles.drawer, { transform: [{ translateX }] }]}>
-        <BlurView intensity={glass.intensity.thick} tint="dark" style={StyleSheet.absoluteFill} />
+      <Animated.View
+        style={[
+          styles.drawer,
+          { width: DRAWER_WIDTH, borderRightColor: glass.border },
+          { transform: [{ translateX }] },
+        ]}
+      >
+        <BlurView intensity={glass.intensity.thick} tint={scheme === 'light' ? 'light' : 'dark'} style={StyleSheet.absoluteFill} />
         <LinearGradient
           colors={gradient.surfaceDepth}
           style={StyleSheet.absoluteFill}
@@ -124,11 +131,11 @@ export default function SidebarMenu() {
           end={{ x: 1, y: 1 }}
         />
 
-        <View style={styles.header}>
+        <View style={[styles.header, { borderBottomColor: glass.border }]}>
           <LinearGradient colors={gradient.brand} style={styles.avatar} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
             <Text style={styles.avatarText}>{(username || '?').charAt(0).toUpperCase()}</Text>
           </LinearGradient>
-          <Text style={styles.username}>{username || 'Not signed in'}</Text>
+          <Text style={[styles.username, { color: palette.ink100 }]}>{username || 'Not signed in'}</Text>
         </View>
 
         <View style={styles.menuList}>
@@ -137,22 +144,38 @@ export default function SidebarMenu() {
             return (
               <TouchableOpacity
                 key={item.key}
-                style={[styles.menuItem, isActive && styles.menuItemActive]}
+                style={[
+                  styles.menuItem,
+                  { borderRadius: radius.md },
+                  isActive && {
+                    backgroundColor: palette.azure + '24',
+                    borderWidth: 1,
+                    borderColor: palette.azureBright + '59',
+                  },
+                ]}
                 activeOpacity={0.75}
                 onPress={() => handleNavigate(item.key)}
               >
                 <PremiumIcon name={item.icon} active={isActive} size={19} style={styles.menuIconSlot} />
-                <Text style={[styles.menuLabel, isActive && styles.menuLabelActive]}>{item.label}</Text>
+                <Text
+                  style={[
+                    styles.menuLabel,
+                    { color: palette.ink300 },
+                    isActive && { color: palette.ink100, fontWeight: '600' },
+                  ]}
+                >
+                  {item.label}
+                </Text>
                 <PremiumIcon name="chevronRight" size={15} color={palette.ink700} style={styles.menuChevron} />
               </TouchableOpacity>
             );
           })}
         </View>
 
-        <View style={styles.footer}>
+        <View style={[styles.footer, { borderTopColor: glass.border }]}>
           <TouchableOpacity style={styles.logoutButton} onPress={handleLogout} activeOpacity={0.75}>
             <PremiumIcon name="logout" size={18} color={palette.coral} />
-            <Text style={styles.logoutText}>Disconnect / Logout</Text>
+            <Text style={[styles.logoutText, { color: palette.coral }]}>Disconnect / Logout</Text>
           </TouchableOpacity>
         </View>
       </Animated.View>
@@ -170,45 +193,31 @@ const styles = StyleSheet.create({
   drawer: {
     position: 'absolute',
     top: 0, bottom: 0, left: 0,
-    width: DRAWER_WIDTH,
     overflow: 'hidden',
-    borderRightColor: glass.border,
     borderRightWidth: 1,
     zIndex: 20,
     paddingTop: 50,
   },
-  header: {
-    paddingHorizontal: spacing.lg,
-    paddingBottom: spacing.lg,
-    borderBottomColor: glass.border,
-    borderBottomWidth: 1,
-  },
+  header: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg, borderBottomWidth: 1 },
   avatar: {
-    width: 56, height: 56, borderRadius: radius.pill,
+    width: 56, height: 56, borderRadius: 28,
     alignItems: 'center', justifyContent: 'center',
     marginBottom: spacing.sm,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.25)',
   },
   avatarText: { color: '#fff', fontSize: 24, fontWeight: '700' },
-  username: { color: palette.ink100, fontSize: typography.sizeLg, fontWeight: '600' },
+  username: { fontSize: typography.sizeLg, fontWeight: '600' },
   menuList: { flex: 1, paddingTop: spacing.md, paddingHorizontal: spacing.sm },
   menuItem: {
     flexDirection: 'row', alignItems: 'center',
     paddingVertical: spacing.md, paddingHorizontal: spacing.md,
-    borderRadius: radius.md,
     marginBottom: 2,
   },
-  menuItemActive: {
-    backgroundColor: 'rgba(79,141,255,0.14)',
-    borderWidth: 1,
-    borderColor: 'rgba(125,178,255,0.35)',
-  },
   menuIconSlot: { width: 30 },
-  menuLabel: { flex: 1, color: palette.ink300, fontSize: typography.sizeMd },
-  menuLabelActive: { color: palette.ink100, fontWeight: '600' },
+  menuLabel: { flex: 1, fontSize: typography.sizeMd },
   menuChevron: { opacity: 0.6 },
-  footer: { padding: spacing.lg, borderTopColor: glass.border, borderTopWidth: 1 },
+  footer: { padding: spacing.lg, borderTopWidth: 1 },
   logoutButton: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.sm },
-  logoutText: { color: palette.coral, fontWeight: '600', fontSize: typography.sizeMd },
+  logoutText: { fontWeight: '600', fontSize: typography.sizeMd },
 });

@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicInteger
  *  - `allow-external-apps = true` set in ~/.termux/termux.properties,
  *    followed by `termux-reload-settings`
  *  - The RUN_COMMAND permission granted to this app (Android Settings ->
- *    Apps -> GitManager -> Permissions -> "Run commands in Termux
+ *    Apps -> GIT -> Permissions -> "Run commands in Termux
  *    environment", or it's requested at runtime)
  *
  * All extra key names and result bundle key names below are taken directly
@@ -221,7 +221,7 @@ class TermuxRunCommandModule(reactContext: ReactApplicationContext) :
       promise.reject(
         "PERMISSION_DENIED",
         "Missing com.termux.permission.RUN_COMMAND. Grant it in Android Settings -> Apps -> " +
-          "GitManager -> Permissions.",
+          "GIT -> Permissions.",
         e
       )
       return

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Text, StyleSheet } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { gradient } from '../../theme/tokens';
+import { useTheme } from '../../theme/ThemeContext';
 
 const BLURHASH = 'L6PZfSi_.AyE_3t7t7R**0o#DgR4';
 
@@ -13,6 +13,7 @@ export interface AvatarProps {
 }
 
 export default function Avatar({ uri, name = '', size = 40 }: AvatarProps) {
+  const { gradient } = useTheme();
   const [failed, setFailed] = useState(false);
   const initials =
     name
@@ -47,7 +48,7 @@ export default function Avatar({ uri, name = '', size = 40 }: AvatarProps) {
 }
 
 const styles = StyleSheet.create({
-  image: { backgroundColor: 'rgba(255,255,255,0.06)' },
+  image: { backgroundColor: 'rgba(128,128,128,0.12)' },
   fallback: { alignItems: 'center', justifyContent: 'center' },
   initials: { color: '#fff', fontWeight: '700' },
 });

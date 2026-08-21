@@ -72,7 +72,7 @@ export function initFcmListeners(): void {
   teardownFcmListeners();
 
   unsubscribeForeground = messaging().onMessage(async (remoteMessage: FirebaseMessagingTypes.RemoteMessage) => {
-    const title = remoteMessage.notification?.title || 'GitManager';
+    const title = remoteMessage.notification?.title || 'GIT';
     const body = remoteMessage.notification?.body || '';
     await presentLocalNotification(title, body, remoteMessage.data || {});
   });
