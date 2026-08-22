@@ -6,7 +6,8 @@ import { listBranches, mergeBranch, forkRepo, getRepoTreeRecursive, getFileConte
 import { saveLocalClone, getLocalClone } from '../db/localClones';
 import { useStaging } from '../context/StagingContext';
 import { createStash, listStashes } from '../db/stashes';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 import { detectProjectType, hasExistingWorkflow } from '../workflows/detectProjectType';
 import { generateWorkflowYaml } from '../workflows/generateWorkflow';
 
@@ -23,6 +24,26 @@ function isBinaryPath(path) {
 const MAX_CLONE_FILES = 400;
 
 export default function GitToolsScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    sectionTitle: { color: colors.fgSubtle, fontSize: typography.sizeSm, fontWeight: '700', textTransform: 'uppercase', marginTop: spacing.lg, marginBottom: spacing.sm },
+    row: {
+      flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    rowText: { color: colors.fgDefault, fontSize: typography.sizeSm, flex: 1 },
+    rowArrow: { color: colors.fgSubtle, fontSize: typography.sizeLg },
+    cloneProgressText: { color: colors.fgSubtle, fontSize: 11, marginTop: 4 },
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
+    pickerCard: { backgroundColor: colors.bgSubtle, borderRadius: 12, borderColor: colors.border, borderWidth: 1, padding: spacing.lg, minWidth: '70%', maxHeight: '60%' },
+    pickerTitle: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '700', marginBottom: spacing.md },
+    pickerItem: { paddingVertical: spacing.sm },
+    pickerItemText: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: typography.sizeSm },
+    pickerEmptyText: { color: colors.fgSubtle, fontSize: typography.sizeSm, paddingVertical: spacing.sm },
+  });
   const { owner, repo, branch, defaultBranch } = route.params;
   const [branches, setBranches] = useState([]);
   const [mergeModalVisible, setMergeModalVisible] = useState(false);
@@ -470,22 +491,3 @@ export default function GitToolsScreen({ route, navigation }: any) {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  sectionTitle: { color: colors.fgSubtle, fontSize: typography.sizeSm, fontWeight: '700', textTransform: 'uppercase', marginTop: spacing.lg, marginBottom: spacing.sm },
-  row: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  rowText: { color: colors.fgDefault, fontSize: typography.sizeSm, flex: 1 },
-  rowArrow: { color: colors.fgSubtle, fontSize: typography.sizeLg },
-  cloneProgressText: { color: colors.fgSubtle, fontSize: 11, marginTop: 4 },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
-  pickerCard: { backgroundColor: colors.bgSubtle, borderRadius: 12, borderColor: colors.border, borderWidth: 1, padding: spacing.lg, minWidth: '70%', maxHeight: '60%' },
-  pickerTitle: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '700', marginBottom: spacing.md },
-  pickerItem: { paddingVertical: spacing.sm },
-  pickerItemText: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: typography.sizeSm },
-  pickerEmptyText: { color: colors.fgSubtle, fontSize: typography.sizeSm, paddingVertical: spacing.sm },
-});

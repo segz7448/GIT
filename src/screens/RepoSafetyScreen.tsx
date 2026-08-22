@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, ActivityIndicator, Alert } from 'react-native';
 import { listSafetyOperations } from '../db/safetyLog';
 import { getRef, updateRef, undoLastCommit, getCommit, deleteBranch } from '../services/github';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 const KIND_LABELS = {
   auto_branch: 'Backup branch created',
@@ -17,6 +18,42 @@ function formatTimestamp(ts) {
 }
 
 export default function RepoSafetyScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
+    section: { padding: spacing.md, paddingBottom: spacing.sm },
+    sectionTitle: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '700', marginBottom: spacing.sm },
+    sectionSubtitle: { color: colors.fgSubtle, fontSize: typography.sizeSm, lineHeight: 18 },
+    dangerButton: {
+      borderColor: colors.danger, borderWidth: 1, borderRadius: 10,
+      padding: spacing.md, alignItems: 'center',
+    },
+    dangerButtonText: { color: colors.danger, fontWeight: '600', fontSize: typography.sizeSm },
+    buttonDisabled: { opacity: 0.5 },
+    tipHint: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: spacing.sm },
+    emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
+    opCard: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    opKind: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '600' },
+    opBranch: { color: colors.accent, fontFamily: typography.mono, fontSize: typography.sizeSm, marginTop: 4 },
+    opDetail: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: 2 },
+    opTime: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: 4 },
+    opActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
+    opDeleteButton: {
+      flex: 1, padding: spacing.sm, alignItems: 'center', borderRadius: 8,
+      borderColor: colors.danger, borderWidth: 1,
+    },
+    opDeleteButtonText: { color: colors.danger, fontSize: typography.sizeSm, fontWeight: '600' },
+    opRestoreButton: {
+      flex: 2, padding: spacing.sm, alignItems: 'center', borderRadius: 8,
+      backgroundColor: colors.warningEmphasis,
+    },
+    opRestoreButtonText: { color: '#fff', fontSize: typography.sizeSm, fontWeight: '600' },
+  });
   const { owner, repo, branch } = route.params;
   const [operations, setOperations] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -206,38 +243,3 @@ export default function RepoSafetyScreen({ route, navigation }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
-  section: { padding: spacing.md, paddingBottom: spacing.sm },
-  sectionTitle: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '700', marginBottom: spacing.sm },
-  sectionSubtitle: { color: colors.fgSubtle, fontSize: typography.sizeSm, lineHeight: 18 },
-  dangerButton: {
-    borderColor: colors.danger, borderWidth: 1, borderRadius: 10,
-    padding: spacing.md, alignItems: 'center',
-  },
-  dangerButtonText: { color: colors.danger, fontWeight: '600', fontSize: typography.sizeSm },
-  buttonDisabled: { opacity: 0.5 },
-  tipHint: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: spacing.sm },
-  emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
-  opCard: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  opKind: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '600' },
-  opBranch: { color: colors.accent, fontFamily: typography.mono, fontSize: typography.sizeSm, marginTop: 4 },
-  opDetail: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: 2 },
-  opTime: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: 4 },
-  opActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
-  opDeleteButton: {
-    flex: 1, padding: spacing.sm, alignItems: 'center', borderRadius: 8,
-    borderColor: colors.danger, borderWidth: 1,
-  },
-  opDeleteButtonText: { color: colors.danger, fontSize: typography.sizeSm, fontWeight: '600' },
-  opRestoreButton: {
-    flex: 2, padding: spacing.sm, alignItems: 'center', borderRadius: 8,
-    backgroundColor: colors.warningEmphasis,
-  },
-  opRestoreButtonText: { color: '#fff', fontSize: typography.sizeSm, fontWeight: '600' },
-});

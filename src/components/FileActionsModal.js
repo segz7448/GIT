@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, TextInput, Alert, ActivityIndicator } from 'react-native';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 /**
  * Long-press action sheet for a file or folder row. Rename/move share one
@@ -18,6 +19,30 @@ export default function FileActionsModal({
   onDelete,
   onCompare,
 }) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
+    card: {
+      backgroundColor: colors.bgSubtle, borderRadius: 12, borderColor: colors.border, borderWidth: 1,
+      padding: spacing.lg, minWidth: '75%',
+    },
+    title: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '700', marginBottom: spacing.sm },
+    subtitle: { color: colors.fgSubtle, fontFamily: typography.mono, fontSize: typography.sizeSm, marginBottom: spacing.md },
+    actionRow: { paddingVertical: spacing.md, borderTopColor: colors.borderMuted, borderTopWidth: 1 },
+    actionText: { color: colors.fgDefault, fontSize: typography.sizeSm },
+    deleteText: { color: colors.danger },
+    input: {
+      color: colors.fgDefault, borderColor: colors.border, borderWidth: 1, borderRadius: 8,
+      paddingHorizontal: spacing.sm, paddingVertical: spacing.sm, fontFamily: typography.mono, fontSize: typography.sizeSm,
+    },
+    hint: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: spacing.sm },
+    actionsRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.lg },
+    cancelButton: { flex: 1, padding: spacing.sm, alignItems: 'center', borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
+    cancelButtonText: { color: colors.fgMuted, fontSize: typography.sizeSm },
+    confirmButton: { flex: 1, padding: spacing.sm, alignItems: 'center', borderRadius: 8, backgroundColor: colors.accentEmphasis },
+    confirmButtonText: { color: '#fff', fontSize: typography.sizeSm, fontWeight: '600' },
+  });
   const [mode, setMode] = useState(null); // null | 'rename' | 'duplicate'
   const [inputValue, setInputValue] = useState('');
 
@@ -124,26 +149,3 @@ export default function FileActionsModal({
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
-  card: {
-    backgroundColor: colors.bgSubtle, borderRadius: 12, borderColor: colors.border, borderWidth: 1,
-    padding: spacing.lg, minWidth: '75%',
-  },
-  title: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '700', marginBottom: spacing.sm },
-  subtitle: { color: colors.fgSubtle, fontFamily: typography.mono, fontSize: typography.sizeSm, marginBottom: spacing.md },
-  actionRow: { paddingVertical: spacing.md, borderTopColor: colors.borderMuted, borderTopWidth: 1 },
-  actionText: { color: colors.fgDefault, fontSize: typography.sizeSm },
-  deleteText: { color: colors.danger },
-  input: {
-    color: colors.fgDefault, borderColor: colors.border, borderWidth: 1, borderRadius: 8,
-    paddingHorizontal: spacing.sm, paddingVertical: spacing.sm, fontFamily: typography.mono, fontSize: typography.sizeSm,
-  },
-  hint: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: spacing.sm },
-  actionsRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.lg },
-  cancelButton: { flex: 1, padding: spacing.sm, alignItems: 'center', borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
-  cancelButtonText: { color: colors.fgMuted, fontSize: typography.sizeSm },
-  confirmButton: { flex: 1, padding: spacing.sm, alignItems: 'center', borderRadius: 8, backgroundColor: colors.accentEmphasis },
-  confirmButtonText: { color: '#fff', fontSize: typography.sizeSm, fontWeight: '600' },
-});

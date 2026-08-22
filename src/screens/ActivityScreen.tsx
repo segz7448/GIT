@@ -11,7 +11,8 @@ import {
 } from 'react-native';
 import { listMyRecentActivity } from '../services/github';
 import { useAuth } from '../context/AuthContext';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 function describeEvent(event) {
   const repo = event.repo?.name || 'unknown repo';
@@ -56,6 +57,22 @@ function timeAgo(dateStr) {
 }
 
 export default function ActivityScreen() {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
+    errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
+    retryButton: { marginTop: spacing.md, padding: spacing.sm },
+    retryText: { color: colors.accent },
+    emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
+    eventCard: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    eventText: { color: colors.fgDefault, fontSize: typography.sizeSm },
+    eventTime: { color: colors.fgSubtle, fontSize: 11, marginTop: 4 },
+  });
   const { username } = useAuth();
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -123,18 +140,3 @@ export default function ActivityScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
-  errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
-  retryButton: { marginTop: spacing.md, padding: spacing.sm },
-  retryText: { color: colors.accent },
-  emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
-  eventCard: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  eventText: { color: colors.fgDefault, fontSize: typography.sizeSm },
-  eventTime: { color: colors.fgSubtle, fontSize: 11, marginTop: 4 },
-});

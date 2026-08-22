@@ -11,9 +11,48 @@ import {
 } from 'react-native';
 import { getFileCommitHistory, revertCommit } from '../services/github';
 import { getFileBlame } from '../services/githubGraphql';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 export default function FileHistoryScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    tabBar: { flexDirection: 'row', borderBottomColor: colors.border, borderBottomWidth: 1 },
+    tabButton: { flex: 1, padding: spacing.md, alignItems: 'center' },
+    tabButtonActive: { borderBottomColor: colors.accent, borderBottomWidth: 2 },
+    tabButtonText: { color: colors.fgDefault, fontSize: typography.sizeSm },
+    centerBox: { alignItems: 'center', marginTop: spacing.xl },
+    errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
+    retryButton: { marginTop: spacing.md, padding: spacing.sm },
+    retryText: { color: colors.accent },
+    emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
+    commitCard: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    commitMessage: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '600' },
+    commitMetaRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: spacing.xs },
+    commitAuthor: { color: colors.fgMuted, fontSize: typography.sizeSm },
+    commitDate: { color: colors.fgSubtle, fontSize: typography.sizeSm },
+    commitSha: { color: colors.fgSubtle, fontFamily: typography.mono, fontSize: 11, marginTop: 4 },
+    revertButton: {
+      marginTop: spacing.sm,
+      paddingVertical: spacing.xs,
+      alignItems: 'center',
+      borderRadius: 6,
+      borderColor: colors.danger,
+      borderWidth: 1,
+    },
+    revertButtonText: { color: colors.danger, fontSize: typography.sizeSm, fontWeight: '600' },
+    blameCard: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    blameLines: { color: colors.accent, fontFamily: typography.mono, fontSize: 11, fontWeight: '700' },
+    blameMessage: { color: colors.fgDefault, fontSize: typography.sizeSm, marginTop: 4 },
+  });
   const { owner, repo, path, branch } = route.params;
   const [view, setView] = useState('history'); // 'history' | 'blame'
 
@@ -195,40 +234,3 @@ export default function FileHistoryScreen({ route, navigation }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  tabBar: { flexDirection: 'row', borderBottomColor: colors.border, borderBottomWidth: 1 },
-  tabButton: { flex: 1, padding: spacing.md, alignItems: 'center' },
-  tabButtonActive: { borderBottomColor: colors.accent, borderBottomWidth: 2 },
-  tabButtonText: { color: colors.fgDefault, fontSize: typography.sizeSm },
-  centerBox: { alignItems: 'center', marginTop: spacing.xl },
-  errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
-  retryButton: { marginTop: spacing.md, padding: spacing.sm },
-  retryText: { color: colors.accent },
-  emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
-  commitCard: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  commitMessage: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '600' },
-  commitMetaRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: spacing.xs },
-  commitAuthor: { color: colors.fgMuted, fontSize: typography.sizeSm },
-  commitDate: { color: colors.fgSubtle, fontSize: typography.sizeSm },
-  commitSha: { color: colors.fgSubtle, fontFamily: typography.mono, fontSize: 11, marginTop: 4 },
-  revertButton: {
-    marginTop: spacing.sm,
-    paddingVertical: spacing.xs,
-    alignItems: 'center',
-    borderRadius: 6,
-    borderColor: colors.danger,
-    borderWidth: 1,
-  },
-  revertButtonText: { color: colors.danger, fontSize: typography.sizeSm, fontWeight: '600' },
-  blameCard: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  blameLines: { color: colors.accent, fontFamily: typography.mono, fontSize: 11, fontWeight: '700' },
-  blameMessage: { color: colors.fgDefault, fontSize: typography.sizeSm, marginTop: 4 },
-});

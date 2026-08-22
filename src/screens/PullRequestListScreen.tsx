@@ -1,7 +1,8 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, RefreshControl, Pressable } from 'react-native';
 import { listPullRequests } from '../services/github';
-import { colors, spacing, typography, radii } from '../theme';
+import { spacing, typography, radii } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 import { Screen, Card, Button, IconButton, EmptyState } from '../components/ui';
 import { haptic } from '../utils/haptics';
 import PremiumIcon from '../components/icons/PremiumIcon';
@@ -10,6 +11,29 @@ import { resolveGlyphName } from '../components/icons/legacyMap';
 const FILTERS = ['open', 'closed', 'all'];
 
 export default function PullRequestListScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    filterBar: { flexDirection: 'row', gap: spacing.sm, padding: spacing.md },
+    filterChip: {
+      borderColor: colors.border,
+      borderWidth: 1,
+      borderRadius: radii.pill,
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.xs,
+      backgroundColor: colors.bgSubtle,
+    },
+    filterChipActive: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
+    filterChipText: { color: colors.fgMuted, fontSize: typography.sizeSm, fontWeight: '600' },
+    filterChipTextActive: { color: '#fff' },
+    centerBox: { alignItems: 'center', marginTop: spacing.xl },
+    errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl, marginTop: spacing.sm },
+    prCard: { marginBottom: spacing.sm },
+    prHeaderRow: { flexDirection: 'row', alignItems: 'flex-start' },
+    prIcon: { marginRight: spacing.sm, marginTop: 2 },
+    prTitle: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '600', flex: 1 },
+    prMeta: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: 4, marginLeft: 26 },
+  });
   const { owner, repo } = route.params;
   const [prs, setPrs] = useState<any[]>([]);
   const [state, setState] = useState('open');
@@ -121,25 +145,3 @@ export default function PullRequestListScreen({ route, navigation }: any) {
     </Screen>
   );
 }
-
-const styles = StyleSheet.create({
-  filterBar: { flexDirection: 'row', gap: spacing.sm, padding: spacing.md },
-  filterChip: {
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: radii.pill,
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.xs,
-    backgroundColor: colors.bgSubtle,
-  },
-  filterChipActive: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
-  filterChipText: { color: colors.fgMuted, fontSize: typography.sizeSm, fontWeight: '600' },
-  filterChipTextActive: { color: '#fff' },
-  centerBox: { alignItems: 'center', marginTop: spacing.xl },
-  errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl, marginTop: spacing.sm },
-  prCard: { marginBottom: spacing.sm },
-  prHeaderRow: { flexDirection: 'row', alignItems: 'flex-start' },
-  prIcon: { marginRight: spacing.sm, marginTop: 2 },
-  prTitle: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '600', flex: 1 },
-  prMeta: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: 4, marginLeft: 26 },
-});

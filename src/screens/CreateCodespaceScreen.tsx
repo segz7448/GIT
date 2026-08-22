@@ -10,10 +10,32 @@ import {
   Alert,
 } from 'react-native';
 import { listRepos, listBranches, listCodespaceMachines, createCodespace } from '../services/github';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 // Step machine: 'repo' -> 'branch' -> 'machine' (then creates and goes back)
 export default function CreateCodespaceScreen({ navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    stepLabel: { color: colors.fgMuted, fontSize: typography.sizeSm, fontWeight: '700', padding: spacing.md, paddingBottom: spacing.sm },
+    searchInput: {
+      marginHorizontal: spacing.md, color: colors.fgDefault, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 8, paddingHorizontal: spacing.sm, paddingVertical: spacing.sm,
+    },
+    backLink: { padding: spacing.md, paddingBottom: 0 },
+    backLinkText: { color: colors.accent, fontWeight: '600', fontSize: typography.sizeSm },
+    row: {
+      flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    rowText: { color: colors.fgDefault, fontSize: typography.sizeSm, flex: 1, fontFamily: typography.mono },
+    rowArrow: { color: colors.fgSubtle, fontSize: typography.sizeLg },
+    emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
+    creatingText: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: spacing.md },
+  });
   const [step, setStep] = useState('repo');
   const [search, setSearch] = useState('');
   const [repos, setRepos] = useState([]);
@@ -187,23 +209,3 @@ export default function CreateCodespaceScreen({ navigation }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  stepLabel: { color: colors.fgMuted, fontSize: typography.sizeSm, fontWeight: '700', padding: spacing.md, paddingBottom: spacing.sm },
-  searchInput: {
-    marginHorizontal: spacing.md, color: colors.fgDefault, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 8, paddingHorizontal: spacing.sm, paddingVertical: spacing.sm,
-  },
-  backLink: { padding: spacing.md, paddingBottom: 0 },
-  backLinkText: { color: colors.accent, fontWeight: '600', fontSize: typography.sizeSm },
-  row: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  rowText: { color: colors.fgDefault, fontSize: typography.sizeSm, flex: 1, fontFamily: typography.mono },
-  rowArrow: { color: colors.fgSubtle, fontSize: typography.sizeLg },
-  emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
-  creatingText: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: spacing.md },
-});

@@ -1,10 +1,38 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, ScrollView, Image, TouchableOpacity, Linking } from 'react-native';
 import { getAuthenticatedUser } from '../services/github';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 import PremiumIcon from '../components/icons/PremiumIcon';
 
 export default function ProfileScreen() {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
+    errorText: { color: colors.danger },
+    header: { alignItems: 'center', marginBottom: spacing.lg },
+    avatar: { width: 88, height: 88, borderRadius: 44, marginBottom: spacing.md },
+    avatarFallback: { backgroundColor: colors.accentEmphasis, alignItems: 'center', justifyContent: 'center' },
+    avatarFallbackText: { color: '#fff', fontSize: 36, fontWeight: '700' },
+    name: { color: colors.fgDefault, fontSize: typography.sizeXl, fontWeight: '700' },
+    handle: { color: colors.fgMuted, fontSize: typography.sizeMd, marginTop: 2 },
+    bio: { color: colors.fgMuted, fontSize: typography.sizeSm, textAlign: 'center', marginTop: spacing.sm, paddingHorizontal: spacing.lg },
+    statsRow: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: spacing.lg },
+    statBox: { alignItems: 'center' },
+    statValue: { color: colors.fgDefault, fontSize: typography.sizeXl, fontWeight: '700' },
+    statLabel: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: 2 },
+    detailsCard: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.lg,
+    },
+    viewOnGithubButton: {
+      borderColor: colors.border, borderWidth: 1, borderRadius: 8,
+      padding: spacing.md, alignItems: 'center',
+    },
+    viewOnGithubText: { color: colors.accent, fontWeight: '600' },
+  });
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -84,39 +112,16 @@ export default function ProfileScreen() {
 }
 
 function DetailRow({ icon, text, linkStyle }: { icon: string; text: string; linkStyle?: boolean }) {
+  const { colors } = useTheme();
+  const rowStyles = StyleSheet.create({
+    detailRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.xs },
+    detailIcon: { marginRight: spacing.sm, width: 24 },
+    detailText: { color: colors.fgDefault, fontSize: typography.sizeSm },
+  });
   return (
-    <View style={styles.detailRow}>
-      <PremiumIcon name={icon as any} size={15} color={colors.fgMuted} style={styles.detailIcon} />
-      <Text style={[styles.detailText, linkStyle && { color: colors.accent }]}>{text}</Text>
+    <View style={rowStyles.detailRow}>
+      <PremiumIcon name={icon as any} size={15} color={colors.fgMuted} style={rowStyles.detailIcon} />
+      <Text style={[rowStyles.detailText, linkStyle && { color: colors.accent }]}>{text}</Text>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
-  errorText: { color: colors.danger },
-  header: { alignItems: 'center', marginBottom: spacing.lg },
-  avatar: { width: 88, height: 88, borderRadius: 44, marginBottom: spacing.md },
-  avatarFallback: { backgroundColor: colors.accentEmphasis, alignItems: 'center', justifyContent: 'center' },
-  avatarFallbackText: { color: '#fff', fontSize: 36, fontWeight: '700' },
-  name: { color: colors.fgDefault, fontSize: typography.sizeXl, fontWeight: '700' },
-  handle: { color: colors.fgMuted, fontSize: typography.sizeMd, marginTop: 2 },
-  bio: { color: colors.fgMuted, fontSize: typography.sizeSm, textAlign: 'center', marginTop: spacing.sm, paddingHorizontal: spacing.lg },
-  statsRow: { flexDirection: 'row', justifyContent: 'space-around', marginBottom: spacing.lg },
-  statBox: { alignItems: 'center' },
-  statValue: { color: colors.fgDefault, fontSize: typography.sizeXl, fontWeight: '700' },
-  statLabel: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: 2 },
-  detailsCard: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.lg,
-  },
-  detailRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.xs },
-  detailIcon: { marginRight: spacing.sm, width: 24 },
-  detailText: { color: colors.fgDefault, fontSize: typography.sizeSm },
-  viewOnGithubButton: {
-    borderColor: colors.border, borderWidth: 1, borderRadius: 8,
-    padding: spacing.md, alignItems: 'center',
-  },
-  viewOnGithubText: { color: colors.accent, fontWeight: '600' },
-});

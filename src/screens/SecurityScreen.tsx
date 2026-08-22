@@ -14,7 +14,8 @@ import { getTokenInfo } from '../services/github';
 import { listAccounts, removeAccount } from '../db/accounts';
 import { useAuth } from '../context/AuthContext';
 import RateLimitIndicator from '../components/RateLimitIndicator';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 // Recommended scopes for this app to function fully, used only to flag
 // gaps to the user - it does not block usage on a missing scope, since
@@ -28,6 +29,40 @@ function daysUntil(date) {
 }
 
 export default function SecurityScreen({ navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    sectionTitle: { color: colors.fgSubtle, fontSize: typography.sizeSm, fontWeight: '700', textTransform: 'uppercase', marginTop: spacing.lg, marginBottom: spacing.sm },
+    errorText: { color: colors.danger, fontSize: typography.sizeSm },
+    card: { backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1, borderRadius: 10, padding: spacing.lg },
+    cardLabel: { color: colors.fgMuted, fontSize: typography.sizeSm, textTransform: 'uppercase' },
+    cardValue: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700', marginTop: 2 },
+    infoRow: { marginTop: spacing.md },
+    infoText: { color: colors.fgMuted, fontSize: typography.sizeSm, lineHeight: 18 },
+    scopesText: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: typography.sizeSm, marginTop: 2 },
+    expiryText: { color: colors.fgDefault, fontSize: typography.sizeSm, marginTop: 2 },
+    expiryTextWarning: { color: colors.warning, fontWeight: '700' },
+    expiryTextDanger: { color: colors.danger, fontWeight: '700' },
+    warningBox: { backgroundColor: 'rgba(210,153,34,0.12)', borderColor: colors.warning, borderWidth: 1, borderRadius: 8, padding: spacing.sm, marginTop: spacing.sm },
+    warningText: { color: colors.warning, fontSize: typography.sizeSm, lineHeight: 18 },
+    dangerBox: { backgroundColor: 'rgba(248,81,73,0.12)', borderColor: colors.danger, borderWidth: 1, borderRadius: 8, padding: spacing.sm, marginTop: spacing.sm },
+    dangerText: { color: colors.danger, fontSize: typography.sizeSm, lineHeight: 18 },
+    refreshButton: { marginTop: spacing.md, alignSelf: 'flex-start' },
+    refreshButtonText: { color: colors.accent, fontSize: typography.sizeSm, fontWeight: '600' },
+    accountRow: {
+      flexDirection: 'row', alignItems: 'center',
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    accountName: { color: colors.fgDefault, fontSize: typography.sizeSm, fontWeight: '600' },
+    accountMeta: { color: colors.fgSubtle, fontSize: 11, marginTop: 2 },
+    switchButton: { backgroundColor: colors.accentEmphasis, borderRadius: 6, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs },
+    switchButtonText: { color: '#fff', fontSize: 11, fontWeight: '600' },
+    removeText: { color: colors.danger, fontSize: typography.sizeSm },
+    addAccountButton: { padding: spacing.md, alignItems: 'center', borderRadius: 8, borderColor: colors.border, borderWidth: 1, borderStyle: 'dashed' },
+    addAccountButtonText: { color: colors.accent, fontWeight: '600', fontSize: typography.sizeSm },
+  });
   const { username, switchAccount } = useAuth();
   const [tokenInfo, setTokenInfo] = useState(null);
   const [loadingToken, setLoadingToken] = useState(true);
@@ -230,9 +265,26 @@ export default function SecurityScreen({ navigation }: any) {
  * real login() function to verify and register the new token.
  */
 function AddAccountModal({ visible, onClose, onAdded }) {
+  const { colors } = useTheme();
   const { login } = useAuth();
   const [token, setToken] = useState('');
   const [loading, setLoading] = useState(false);
+
+  const styles = StyleSheet.create({
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
+    modalCard: { backgroundColor: colors.bgSubtle, borderRadius: 12, borderColor: colors.border, borderWidth: 1, padding: spacing.lg, width: '90%' },
+    modalTitle: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700', marginBottom: spacing.sm },
+    modalSubtitle: { color: colors.fgMuted, fontSize: typography.sizeSm, marginBottom: spacing.md, lineHeight: 18 },
+    tokenInput: {
+      backgroundColor: colors.bgInset, borderColor: colors.border, borderWidth: 1, borderRadius: 8,
+      color: colors.fgDefault, fontFamily: typography.mono, padding: spacing.md,
+    },
+    modalActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
+    cancelButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
+    cancelButtonText: { color: colors.fgMuted },
+    confirmButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, backgroundColor: colors.successEmphasis },
+    confirmButtonText: { color: '#fff', fontWeight: '600' },
+  });
 
   const handleAdd = async () => {
     const trimmed = token.trim();
@@ -281,49 +333,3 @@ function AddAccountModal({ visible, onClose, onAdded }) {
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  sectionTitle: { color: colors.fgSubtle, fontSize: typography.sizeSm, fontWeight: '700', textTransform: 'uppercase', marginTop: spacing.lg, marginBottom: spacing.sm },
-  errorText: { color: colors.danger, fontSize: typography.sizeSm },
-  card: { backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1, borderRadius: 10, padding: spacing.lg },
-  cardLabel: { color: colors.fgMuted, fontSize: typography.sizeSm, textTransform: 'uppercase' },
-  cardValue: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700', marginTop: 2 },
-  infoRow: { marginTop: spacing.md },
-  infoText: { color: colors.fgMuted, fontSize: typography.sizeSm, lineHeight: 18 },
-  scopesText: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: typography.sizeSm, marginTop: 2 },
-  expiryText: { color: colors.fgDefault, fontSize: typography.sizeSm, marginTop: 2 },
-  expiryTextWarning: { color: colors.warning, fontWeight: '700' },
-  expiryTextDanger: { color: colors.danger, fontWeight: '700' },
-  warningBox: { backgroundColor: 'rgba(210,153,34,0.12)', borderColor: colors.warning, borderWidth: 1, borderRadius: 8, padding: spacing.sm, marginTop: spacing.sm },
-  warningText: { color: colors.warning, fontSize: typography.sizeSm, lineHeight: 18 },
-  dangerBox: { backgroundColor: 'rgba(248,81,73,0.12)', borderColor: colors.danger, borderWidth: 1, borderRadius: 8, padding: spacing.sm, marginTop: spacing.sm },
-  dangerText: { color: colors.danger, fontSize: typography.sizeSm, lineHeight: 18 },
-  refreshButton: { marginTop: spacing.md, alignSelf: 'flex-start' },
-  refreshButtonText: { color: colors.accent, fontSize: typography.sizeSm, fontWeight: '600' },
-  accountRow: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  accountName: { color: colors.fgDefault, fontSize: typography.sizeSm, fontWeight: '600' },
-  accountMeta: { color: colors.fgSubtle, fontSize: 11, marginTop: 2 },
-  switchButton: { backgroundColor: colors.accentEmphasis, borderRadius: 6, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs },
-  switchButtonText: { color: '#fff', fontSize: 11, fontWeight: '600' },
-  removeText: { color: colors.danger, fontSize: typography.sizeSm },
-  addAccountButton: { padding: spacing.md, alignItems: 'center', borderRadius: 8, borderColor: colors.border, borderWidth: 1, borderStyle: 'dashed' },
-  addAccountButtonText: { color: colors.accent, fontWeight: '600', fontSize: typography.sizeSm },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
-  modalCard: { backgroundColor: colors.bgSubtle, borderRadius: 12, borderColor: colors.border, borderWidth: 1, padding: spacing.lg, width: '90%' },
-  modalTitle: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700', marginBottom: spacing.sm },
-  modalSubtitle: { color: colors.fgMuted, fontSize: typography.sizeSm, marginBottom: spacing.md, lineHeight: 18 },
-  tokenInput: {
-    backgroundColor: colors.bgInset, borderColor: colors.border, borderWidth: 1, borderRadius: 8,
-    color: colors.fgDefault, fontFamily: typography.mono, padding: spacing.md,
-  },
-  modalActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
-  cancelButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
-  cancelButtonText: { color: colors.fgMuted },
-  confirmButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, backgroundColor: colors.successEmphasis },
-  confirmButtonText: { color: '#fff', fontWeight: '600' },
-});

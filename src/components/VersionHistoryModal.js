@@ -2,7 +2,8 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, FlatList, Alert } from 'react-native';
 import { listBackups, deleteBackup } from '../db/fileBackups';
 import DiffView from './DiffView';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 const KIND_LABELS = {
   open: 'Auto-saved on open',
@@ -33,6 +34,45 @@ export default function VersionHistoryModal({
   currentContent,
   onRestore,
 }) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
+    card: {
+      backgroundColor: colors.bgSubtle,
+      borderTopLeftRadius: 16,
+      borderTopRightRadius: 16,
+      padding: spacing.lg,
+      borderColor: colors.border,
+      borderWidth: 1,
+      height: '80%',
+    },
+    headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    title: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700' },
+    closeText: { color: colors.accent, fontWeight: '600' },
+    subtitle: { color: colors.fgMuted, fontFamily: typography.mono, fontSize: typography.sizeSm, marginTop: 2, marginBottom: spacing.md },
+    empty: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: spacing.md,
+      borderBottomColor: colors.borderMuted,
+      borderBottomWidth: 1,
+    },
+    rowKind: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '600' },
+    rowTime: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: 2 },
+    rowArrow: { color: colors.fgSubtle, fontSize: typography.sizeLg },
+    backLink: { paddingVertical: spacing.sm },
+    backLinkText: { color: colors.accent, fontWeight: '600' },
+    selectedLabel: { color: colors.fgMuted, fontSize: typography.sizeSm, marginBottom: spacing.sm },
+    diff: { flex: 1, borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
+    diffHint: { color: colors.fgSubtle, fontSize: typography.sizeSm, textAlign: 'center', marginTop: spacing.sm },
+    actionsRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
+    deleteButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, borderColor: colors.danger, borderWidth: 1 },
+    deleteButtonText: { color: colors.danger, fontWeight: '600' },
+    restoreButton: { flex: 2, padding: spacing.md, alignItems: 'center', borderRadius: 8, backgroundColor: colors.successEmphasis },
+    restoreButtonText: { color: '#fff', fontWeight: '600' },
+  });
   const [backups, setBackups] = useState([]);
   const [selected, setSelected] = useState(null);
 
@@ -131,41 +171,3 @@ export default function VersionHistoryModal({
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
-  card: {
-    backgroundColor: colors.bgSubtle,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    padding: spacing.lg,
-    borderColor: colors.border,
-    borderWidth: 1,
-    height: '80%',
-  },
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  title: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700' },
-  closeText: { color: colors.accent, fontWeight: '600' },
-  subtitle: { color: colors.fgMuted, fontFamily: typography.mono, fontSize: typography.sizeSm, marginTop: 2, marginBottom: spacing.md },
-  empty: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-    borderBottomColor: colors.borderMuted,
-    borderBottomWidth: 1,
-  },
-  rowKind: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '600' },
-  rowTime: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: 2 },
-  rowArrow: { color: colors.fgSubtle, fontSize: typography.sizeLg },
-  backLink: { paddingVertical: spacing.sm },
-  backLinkText: { color: colors.accent, fontWeight: '600' },
-  selectedLabel: { color: colors.fgMuted, fontSize: typography.sizeSm, marginBottom: spacing.sm },
-  diff: { flex: 1, borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
-  diffHint: { color: colors.fgSubtle, fontSize: typography.sizeSm, textAlign: 'center', marginTop: spacing.sm },
-  actionsRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
-  deleteButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, borderColor: colors.danger, borderWidth: 1 },
-  deleteButtonText: { color: colors.danger, fontWeight: '600' },
-  restoreButton: { flex: 2, padding: spacing.md, alignItems: 'center', borderRadius: 8, backgroundColor: colors.successEmphasis },
-  restoreButtonText: { color: '#fff', fontWeight: '600' },
-});

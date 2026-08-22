@@ -15,10 +15,60 @@ import {
   deleteWebhook,
   pingWebhook,
 } from '../services/github';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 import PremiumIcon from '../components/icons/PremiumIcon';
 
 export default function RepoGitHubScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    sectionTitle: { color: colors.fgSubtle, fontSize: typography.sizeSm, fontWeight: '700', textTransform: 'uppercase', marginTop: spacing.lg, marginBottom: spacing.sm },
+    row: {
+      flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    rowText: { color: colors.fgDefault, fontSize: typography.sizeSm, flex: 1 },
+    rowArrow: { color: colors.fgSubtle, fontSize: typography.sizeLg },
+    starRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    watchOptionsRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.sm },
+    watchChip: { flex: 1, borderColor: colors.border, borderWidth: 1, borderRadius: 8, padding: spacing.sm, alignItems: 'center' },
+    watchChipActive: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
+    watchChipText: { color: colors.fgMuted, fontSize: 11 },
+    watchChipTextActive: { color: '#fff', fontWeight: '600' },
+    collabRow: {
+      flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    collabName: { color: colors.fgDefault, fontSize: typography.sizeSm, flex: 1 },
+    collabRole: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginRight: spacing.md },
+    collabRemove: { color: colors.danger, fontSize: typography.sizeSm, fontWeight: '600' },
+    webhookRow: {
+      flexDirection: 'row', alignItems: 'center',
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    webhookUrl: { color: colors.fgDefault, fontSize: typography.sizeSm, fontFamily: typography.mono },
+    webhookMeta: { color: colors.fgSubtle, fontSize: 11, marginTop: 2 },
+    webhookPing: { color: colors.accent, fontSize: typography.sizeSm, fontWeight: '600' },
+    webhookHint: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: spacing.sm },
+    emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.md },
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
+    modalCard: { backgroundColor: colors.bgSubtle, borderRadius: 12, borderColor: colors.border, borderWidth: 1, padding: spacing.lg, width: '85%' },
+    modalTitle: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700', marginBottom: spacing.md },
+    input: {
+      color: colors.fgDefault, borderColor: colors.border, borderWidth: 1, borderRadius: 8,
+      paddingHorizontal: spacing.sm, paddingVertical: spacing.sm,
+    },
+    modalActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
+    cancelButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
+    cancelButtonText: { color: colors.fgMuted },
+    confirmButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, backgroundColor: colors.accentEmphasis },
+    confirmButtonText: { color: '#fff', fontWeight: '600' },
+  });
   const { owner, repo } = route.params;
   const [starred, setStarred] = useState(null);
   const [starLoading, setStarLoading] = useState(false);
@@ -336,51 +386,3 @@ export default function RepoGitHubScreen({ route, navigation }: any) {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  sectionTitle: { color: colors.fgSubtle, fontSize: typography.sizeSm, fontWeight: '700', textTransform: 'uppercase', marginTop: spacing.lg, marginBottom: spacing.sm },
-  row: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  rowText: { color: colors.fgDefault, fontSize: typography.sizeSm, flex: 1 },
-  rowArrow: { color: colors.fgSubtle, fontSize: typography.sizeLg },
-  starRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  watchOptionsRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.sm },
-  watchChip: { flex: 1, borderColor: colors.border, borderWidth: 1, borderRadius: 8, padding: spacing.sm, alignItems: 'center' },
-  watchChipActive: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
-  watchChipText: { color: colors.fgMuted, fontSize: 11 },
-  watchChipTextActive: { color: '#fff', fontWeight: '600' },
-  collabRow: {
-    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  collabName: { color: colors.fgDefault, fontSize: typography.sizeSm, flex: 1 },
-  collabRole: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginRight: spacing.md },
-  collabRemove: { color: colors.danger, fontSize: typography.sizeSm, fontWeight: '600' },
-  webhookRow: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  webhookUrl: { color: colors.fgDefault, fontSize: typography.sizeSm, fontFamily: typography.mono },
-  webhookMeta: { color: colors.fgSubtle, fontSize: 11, marginTop: 2 },
-  webhookPing: { color: colors.accent, fontSize: typography.sizeSm, fontWeight: '600' },
-  webhookHint: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: spacing.sm },
-  emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.md },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
-  modalCard: { backgroundColor: colors.bgSubtle, borderRadius: 12, borderColor: colors.border, borderWidth: 1, padding: spacing.lg, width: '85%' },
-  modalTitle: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700', marginBottom: spacing.md },
-  input: {
-    color: colors.fgDefault, borderColor: colors.border, borderWidth: 1, borderRadius: 8,
-    paddingHorizontal: spacing.sm, paddingVertical: spacing.sm,
-  },
-  modalActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
-  cancelButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
-  cancelButtonText: { color: colors.fgMuted },
-  confirmButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, backgroundColor: colors.accentEmphasis },
-  confirmButtonText: { color: '#fff', fontWeight: '600' },
-});

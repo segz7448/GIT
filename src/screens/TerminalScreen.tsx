@@ -18,20 +18,18 @@ import { getTermuxStatus, startBackgroundCommand, pollJob, killJob, cleanupJob }
 import { createSession, updateSession, listSessions, deleteSession } from '../db/terminalSessions';
 import AnsiText from '../components/AnsiText';
 import TerminalKeyRow from '../components/TerminalKeyRow';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 const SETUP_COMMANDS = 'mkdir -p ~/.termux\necho "allow-external-apps=true" >> ~/.termux/termux.properties\ntermux-reload-settings';
 const POLL_INTERVAL_MS = 1500;
 const MAX_HISTORY = 100;
 
 // Termux's own palette is close to pure black with light gray text and a
-// green prompt - matching that look here, distinct from the rest of the
-// app's dark-blue GitHub-style theme, since this screen is meant to read
-// as "a real terminal", not "a themed panel".
-const TERMUX_BG = '#000000';
-const TERMUX_FG = '#d0d0d0';
-const TERMUX_GREEN = '#4caf50';
-const TERMUX_DIM = '#6a6a6a';
+// green prompt - previously fixed regardless of the app theme to look
+// like "a real terminal". Now follows the selected theme instead (light
+// theme means a light-background terminal too), derived from useTheme()
+// inside the component rather than as fixed module-scope constants.
 
 function isAllowExternalAppsError(text) {
   return !!text && text.toLowerCase().includes('allow-external-apps');
@@ -42,6 +40,69 @@ function isWordChar(c) {
 }
 
 export default function TerminalScreen() {
+  const { colors, scheme } = useTheme();
+
+  // Derived from the active theme instead of fixed hex constants - see
+  // the comment above.
+  const TERMUX_BG = colors.bgInset;
+  const TERMUX_FG = colors.fgDefault;
+  const TERMUX_GREEN = colors.success;
+  const TERMUX_DIM = colors.fgSubtle;
+
+  const styles = StyleSheet.create({
+    flex: { flex: 1, backgroundColor: TERMUX_BG },
+    centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
+    setupTitle: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700', marginBottom: spacing.md },
+    setupText: { color: colors.fgMuted, fontSize: typography.sizeSm, lineHeight: 20, textAlign: 'left' },
+    code: { fontFamily: typography.mono, color: colors.accent, fontSize: 12 },
+    setupButton: { backgroundColor: colors.accentEmphasis, borderRadius: 8, paddingVertical: spacing.sm, paddingHorizontal: spacing.lg, marginTop: spacing.lg },
+    copyButton: { borderColor: colors.accent, borderWidth: 1, borderRadius: 8, paddingVertical: spacing.sm, paddingHorizontal: spacing.lg, marginTop: spacing.md },
+    copyButtonSmall: { backgroundColor: colors.accentEmphasis, borderRadius: 6, paddingVertical: spacing.xs, paddingHorizontal: spacing.md, marginTop: spacing.sm, alignSelf: 'flex-start' },
+    copyButtonText: { color: '#fff', fontWeight: '600', fontSize: typography.sizeSm },
+    setupCallout: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.warning, borderWidth: 1,
+      borderRadius: 8, padding: spacing.sm, marginTop: spacing.xs,
+    },
+    setupCalloutTitle: { color: colors.warning, fontWeight: '700', fontSize: typography.sizeSm },
+    setupCalloutText: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: 4, marginBottom: spacing.xs },
+    setupButtonText: { color: '#fff', fontWeight: '600' },
+    retryText: { color: colors.accent, fontSize: typography.sizeSm },
+    tabsRow: { maxHeight: 44, borderBottomColor: colors.border, borderBottomWidth: 1, backgroundColor: TERMUX_BG },
+    tab: {
+      flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.sm, marginVertical: spacing.xs,
+      marginRight: spacing.xs, borderRadius: 6, maxWidth: 140,
+    },
+    tabActive: { backgroundColor: colors.bgSubtle },
+    tabDot: { width: 6, height: 6, borderRadius: 3, marginRight: spacing.xs },
+    tabDotStarting: { backgroundColor: TERMUX_DIM },
+    tabDotRunning: { backgroundColor: colors.warning },
+    tabDotSuccess: { backgroundColor: TERMUX_GREEN },
+    tabDotError: { backgroundColor: colors.danger },
+    tabText: { color: TERMUX_DIM, fontSize: 12, fontFamily: typography.mono },
+    tabTextActive: { color: TERMUX_FG, fontWeight: '700' },
+    newTabButton: { justifyContent: 'center', paddingHorizontal: spacing.sm },
+    newTabButtonText: { color: TERMUX_GREEN, fontWeight: '600', fontSize: 12 },
+    terminal: { flex: 1 },
+    hintText: { color: TERMUX_DIM, fontSize: typography.sizeSm, fontFamily: typography.mono, lineHeight: 18 },
+    promptLine: { fontFamily: typography.mono, fontSize: 13, fontWeight: '700', color: TERMUX_FG },
+    promptTilde: { color: '#66bfff' },
+    promptDollar: { color: TERMUX_GREEN },
+    stdoutLine: { fontFamily: typography.mono, fontSize: 12, marginTop: 2, lineHeight: 16, color: TERMUX_FG },
+    exitLine: { color: TERMUX_DIM, fontFamily: typography.mono, fontSize: 11, marginTop: 4 },
+    inputBar: {
+      flexDirection: 'row', alignItems: 'center', padding: spacing.sm,
+      borderTopColor: colors.border, borderTopWidth: 1, backgroundColor: TERMUX_BG,
+    },
+    stopButton: { backgroundColor: colors.danger, borderRadius: 6, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, marginRight: spacing.sm },
+    stopButtonText: { color: '#fff', fontWeight: '600', fontSize: 11 },
+    promptSymbol: { color: TERMUX_GREEN, fontFamily: typography.mono, fontWeight: '700', marginRight: spacing.sm },
+    input: {
+      flex: 1, color: TERMUX_FG, fontFamily: typography.mono, fontSize: 13,
+      paddingVertical: spacing.sm,
+    },
+    runButton: { backgroundColor: colors.successEmphasis, borderRadius: 6, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, marginLeft: spacing.sm },
+    runButtonText: { color: '#fff', fontWeight: '600', fontSize: typography.sizeSm },
+  });
   const [status, setStatus] = useState(null);
   const [checkingStatus, setCheckingStatus] = useState(true);
   const [sessions, setSessions] = useState([]); // local tab list, mirrors terminal_sessions table
@@ -453,7 +514,7 @@ export default function TerminalScreen() {
             {(activeSession.status === 'starting' || activeSession.status === 'running') && (
               <ActivityIndicator style={{ marginTop: spacing.xs, alignSelf: 'flex-start' }} color={TERMUX_GREEN} size="small" />
             )}
-            <AnsiText style={styles.stdoutLine} dimColor={TERMUX_DIM}>{activeSession.lastLog || ''}</AnsiText>
+            <AnsiText style={styles.stdoutLine} dimColor={TERMUX_DIM} scheme={scheme}>{activeSession.lastLog || ''}</AnsiText>
             {activeSession.status === 'finished' && (
               <Text style={styles.exitLine}>
                 exit {activeSession.exitCode ?? 'unknown'}
@@ -506,58 +567,3 @@ export default function TerminalScreen() {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: TERMUX_BG },
-  centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
-  setupTitle: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700', marginBottom: spacing.md },
-  setupText: { color: colors.fgMuted, fontSize: typography.sizeSm, lineHeight: 20, textAlign: 'left' },
-  code: { fontFamily: typography.mono, color: colors.accent, fontSize: 12 },
-  setupButton: { backgroundColor: colors.accentEmphasis, borderRadius: 8, paddingVertical: spacing.sm, paddingHorizontal: spacing.lg, marginTop: spacing.lg },
-  copyButton: { borderColor: colors.accent, borderWidth: 1, borderRadius: 8, paddingVertical: spacing.sm, paddingHorizontal: spacing.lg, marginTop: spacing.md },
-  copyButtonSmall: { backgroundColor: colors.accentEmphasis, borderRadius: 6, paddingVertical: spacing.xs, paddingHorizontal: spacing.md, marginTop: spacing.sm, alignSelf: 'flex-start' },
-  copyButtonText: { color: '#fff', fontWeight: '600', fontSize: typography.sizeSm },
-  setupCallout: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.warning, borderWidth: 1,
-    borderRadius: 8, padding: spacing.sm, marginTop: spacing.xs,
-  },
-  setupCalloutTitle: { color: colors.warning, fontWeight: '700', fontSize: typography.sizeSm },
-  setupCalloutText: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: 4, marginBottom: spacing.xs },
-  setupButtonText: { color: '#fff', fontWeight: '600' },
-  retryText: { color: colors.accent, fontSize: typography.sizeSm },
-  tabsRow: { maxHeight: 44, borderBottomColor: '#2a2a2a', borderBottomWidth: 1, backgroundColor: TERMUX_BG },
-  tab: {
-    flexDirection: 'row', alignItems: 'center', paddingHorizontal: spacing.sm, marginVertical: spacing.xs,
-    marginRight: spacing.xs, borderRadius: 6, maxWidth: 140,
-  },
-  tabActive: { backgroundColor: '#1a1a1a' },
-  tabDot: { width: 6, height: 6, borderRadius: 3, marginRight: spacing.xs },
-  tabDotStarting: { backgroundColor: TERMUX_DIM },
-  tabDotRunning: { backgroundColor: colors.warning },
-  tabDotSuccess: { backgroundColor: TERMUX_GREEN },
-  tabDotError: { backgroundColor: colors.danger },
-  tabText: { color: TERMUX_DIM, fontSize: 12, fontFamily: typography.mono },
-  tabTextActive: { color: TERMUX_FG, fontWeight: '700' },
-  newTabButton: { justifyContent: 'center', paddingHorizontal: spacing.sm },
-  newTabButtonText: { color: TERMUX_GREEN, fontWeight: '600', fontSize: 12 },
-  terminal: { flex: 1 },
-  hintText: { color: TERMUX_DIM, fontSize: typography.sizeSm, fontFamily: typography.mono, lineHeight: 18 },
-  promptLine: { fontFamily: typography.mono, fontSize: 13, fontWeight: '700', color: TERMUX_FG },
-  promptTilde: { color: '#66bfff' },
-  promptDollar: { color: TERMUX_GREEN },
-  stdoutLine: { fontFamily: typography.mono, fontSize: 12, marginTop: 2, lineHeight: 16, color: TERMUX_FG },
-  exitLine: { color: TERMUX_DIM, fontFamily: typography.mono, fontSize: 11, marginTop: 4 },
-  inputBar: {
-    flexDirection: 'row', alignItems: 'center', padding: spacing.sm,
-    borderTopColor: '#2a2a2a', borderTopWidth: 1, backgroundColor: TERMUX_BG,
-  },
-  stopButton: { backgroundColor: colors.danger, borderRadius: 6, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, marginRight: spacing.sm },
-  stopButtonText: { color: '#fff', fontWeight: '600', fontSize: 11 },
-  promptSymbol: { color: TERMUX_GREEN, fontFamily: typography.mono, fontWeight: '700', marginRight: spacing.sm },
-  input: {
-    flex: 1, color: TERMUX_FG, fontFamily: typography.mono, fontSize: 13,
-    paddingVertical: spacing.sm,
-  },
-  runButton: { backgroundColor: colors.successEmphasis, borderRadius: 6, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, marginLeft: spacing.sm },
-  runButtonText: { color: '#fff', fontWeight: '600', fontSize: typography.sizeSm },
-});

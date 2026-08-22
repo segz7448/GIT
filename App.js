@@ -155,16 +155,15 @@ function MainTabs() {
         headerShown: false,
         tabBarShowLabel: true,
         tabBarStyle: {
-          position: 'absolute',
           borderTopWidth: 0,
           backgroundColor: 'transparent',
           elevation: 0,
           height: 74,
           paddingTop: 8,
         },
-        // Glass tab bar: BlurView background rendered behind the flat
-        // tabBarStyle above (Android <31 falls back to a translucent tint
-        // inside BlurView itself, still reads as glass, not a flat box).
+        // Glass tab bar: BlurView background, docked normally (NOT
+        // position:'absolute') so React Navigation reserves its height
+        // in every screen's layout and nothing renders underneath it.
         tabBarBackground: () => (
           <BlurView
             intensity={50}

@@ -10,9 +10,32 @@ import {
   ScrollView,
 } from 'react-native';
 import { listBranches, createPullRequest, getRepo } from '../services/github';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 export default function CreatePullRequestScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
+    label: { color: colors.fgMuted, fontSize: typography.sizeSm, textTransform: 'uppercase', marginTop: spacing.lg, marginBottom: spacing.sm },
+    chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    chip: { borderColor: colors.border, borderWidth: 1, borderRadius: 20, paddingHorizontal: spacing.md, paddingVertical: spacing.xs },
+    chipActive: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
+    chipText: { color: colors.fgMuted, fontSize: typography.sizeSm },
+    chipTextActive: { color: '#fff', fontWeight: '600' },
+    input: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 8, padding: spacing.md, color: colors.fgDefault,
+    },
+    textArea: { minHeight: 100, textAlignVertical: 'top' },
+    createButton: {
+      backgroundColor: colors.successEmphasis, borderRadius: 10, padding: spacing.md,
+      alignItems: 'center', marginTop: spacing.xl, marginBottom: spacing.xl,
+    },
+    createButtonText: { color: '#fff', fontWeight: '700', fontSize: typography.sizeMd },
+  });
   const { owner, repo } = route.params;
   const [branches, setBranches] = useState([]);
   const [base, setBase] = useState(null);
@@ -126,24 +149,3 @@ export default function CreatePullRequestScreen({ route, navigation }: any) {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
-  label: { color: colors.fgMuted, fontSize: typography.sizeSm, textTransform: 'uppercase', marginTop: spacing.lg, marginBottom: spacing.sm },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  chip: { borderColor: colors.border, borderWidth: 1, borderRadius: 20, paddingHorizontal: spacing.md, paddingVertical: spacing.xs },
-  chipActive: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
-  chipText: { color: colors.fgMuted, fontSize: typography.sizeSm },
-  chipTextActive: { color: '#fff', fontWeight: '600' },
-  input: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 8, padding: spacing.md, color: colors.fgDefault,
-  },
-  textArea: { minHeight: 100, textAlignVertical: 'top' },
-  createButton: {
-    backgroundColor: colors.successEmphasis, borderRadius: 10, padding: spacing.md,
-    alignItems: 'center', marginTop: spacing.xl, marginBottom: spacing.xl,
-  },
-  createButtonText: { color: '#fff', fontWeight: '700', fontSize: typography.sizeMd },
-});

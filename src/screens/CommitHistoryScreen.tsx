@@ -11,7 +11,8 @@ import {
   Modal,
 } from 'react-native';
 import { listRepoCommits, cherryPickCommit, listBranches } from '../services/github';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 /**
  * Repo-wide commit history (as opposed to FileHistoryScreen, which is
@@ -19,6 +20,28 @@ import { colors, spacing, typography } from '../theme';
  * cherry-picked onto another branch.
  */
 export default function CommitHistoryScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
+    commitCard: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    commitMessage: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '600' },
+    commitMetaRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: spacing.xs },
+    commitAuthor: { color: colors.fgMuted, fontSize: typography.sizeSm },
+    commitDate: { color: colors.fgSubtle, fontSize: typography.sizeSm },
+    commitSha: { color: colors.fgSubtle, fontFamily: typography.mono, fontSize: 11, marginTop: 4 },
+    cherryPickButton: { marginTop: spacing.sm, paddingVertical: spacing.xs, alignItems: 'center', borderRadius: 6, borderColor: colors.accent, borderWidth: 1 },
+    cherryPickButtonText: { color: colors.accent, fontSize: typography.sizeSm, fontWeight: '600' },
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
+    pickerCard: { backgroundColor: colors.bgSubtle, borderRadius: 12, borderColor: colors.border, borderWidth: 1, padding: spacing.lg, minWidth: '70%', maxHeight: '60%' },
+    pickerTitle: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '700', marginBottom: spacing.md },
+    pickerItem: { paddingVertical: spacing.sm },
+    pickerItemText: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: typography.sizeSm },
+  });
   const { owner, repo, branch } = route.params;
   const [commits, setCommits] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -142,24 +165,3 @@ export default function CommitHistoryScreen({ route, navigation }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
-  commitCard: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  commitMessage: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '600' },
-  commitMetaRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: spacing.xs },
-  commitAuthor: { color: colors.fgMuted, fontSize: typography.sizeSm },
-  commitDate: { color: colors.fgSubtle, fontSize: typography.sizeSm },
-  commitSha: { color: colors.fgSubtle, fontFamily: typography.mono, fontSize: 11, marginTop: 4 },
-  cherryPickButton: { marginTop: spacing.sm, paddingVertical: spacing.xs, alignItems: 'center', borderRadius: 6, borderColor: colors.accent, borderWidth: 1 },
-  cherryPickButtonText: { color: colors.accent, fontSize: typography.sizeSm, fontWeight: '600' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
-  pickerCard: { backgroundColor: colors.bgSubtle, borderRadius: 12, borderColor: colors.border, borderWidth: 1, padding: spacing.lg, minWidth: '70%', maxHeight: '60%' },
-  pickerTitle: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '700', marginBottom: spacing.md },
-  pickerItem: { paddingVertical: spacing.sm },
-  pickerItemText: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: typography.sizeSm },
-});

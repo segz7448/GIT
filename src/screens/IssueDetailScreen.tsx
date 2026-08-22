@@ -13,9 +13,48 @@ import {
   Linking,
 } from 'react-native';
 import { getIssue, updateIssueState, listIssueComments, createIssueComment } from '../services/github';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 export default function IssueDetailScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    flex: { flex: 1, backgroundColor: colors.bgDefault },
+    centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
+    errorText: { color: colors.danger, textAlign: 'center' },
+    header: { marginBottom: spacing.md },
+    title: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700' },
+    metaRow: { flexDirection: 'row', alignItems: 'center', marginTop: spacing.sm },
+    stateDot: { width: 10, height: 10, borderRadius: 5, marginRight: spacing.sm },
+    stateDotOpen: { backgroundColor: colors.success },
+    stateDotClosed: { backgroundColor: colors.danger },
+    metaText: { color: colors.fgMuted, fontSize: typography.sizeSm },
+    body: { color: colors.fgDefault, fontSize: typography.sizeSm, marginTop: spacing.md, lineHeight: 20 },
+    toggleButton: { marginTop: spacing.md, padding: spacing.sm, borderRadius: 8, alignItems: 'center' },
+    closeButton: { backgroundColor: colors.danger },
+    reopenButton: { backgroundColor: colors.successEmphasis },
+    toggleButtonText: { color: '#fff', fontWeight: '600', fontSize: typography.sizeSm },
+    commentsHeader: { color: colors.fgSubtle, fontSize: typography.sizeSm, fontWeight: '700', marginTop: spacing.lg, textTransform: 'uppercase' },
+    emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.md },
+    commentCard: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    commentAuthor: { color: colors.fgDefault, fontWeight: '700', fontSize: typography.sizeSm },
+    commentBody: { color: colors.fgDefault, fontSize: typography.sizeSm, marginTop: 4, lineHeight: 18 },
+    commentDate: { color: colors.fgSubtle, fontSize: 11, marginTop: spacing.sm },
+    commentBar: {
+      flexDirection: 'row', alignItems: 'flex-end', padding: spacing.sm,
+      borderTopColor: colors.border, borderTopWidth: 1, backgroundColor: colors.bgSubtle,
+    },
+    commentInput: {
+      flex: 1, color: colors.fgDefault, borderColor: colors.border, borderWidth: 1, borderRadius: 8,
+      paddingHorizontal: spacing.sm, paddingVertical: spacing.sm, maxHeight: 100, marginRight: spacing.sm,
+    },
+    postButton: { backgroundColor: colors.successEmphasis, borderRadius: 8, paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
+    postButtonText: { color: '#fff', fontWeight: '600' },
+  });
   const { owner, repo, issueNumber } = route.params;
   const [issue, setIssue] = useState(null);
   const [comments, setComments] = useState([]);
@@ -153,40 +192,3 @@ export default function IssueDetailScreen({ route, navigation }: any) {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.bgDefault },
-  centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
-  errorText: { color: colors.danger, textAlign: 'center' },
-  header: { marginBottom: spacing.md },
-  title: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700' },
-  metaRow: { flexDirection: 'row', alignItems: 'center', marginTop: spacing.sm },
-  stateDot: { width: 10, height: 10, borderRadius: 5, marginRight: spacing.sm },
-  stateDotOpen: { backgroundColor: colors.success },
-  stateDotClosed: { backgroundColor: colors.danger },
-  metaText: { color: colors.fgMuted, fontSize: typography.sizeSm },
-  body: { color: colors.fgDefault, fontSize: typography.sizeSm, marginTop: spacing.md, lineHeight: 20 },
-  toggleButton: { marginTop: spacing.md, padding: spacing.sm, borderRadius: 8, alignItems: 'center' },
-  closeButton: { backgroundColor: colors.danger },
-  reopenButton: { backgroundColor: colors.successEmphasis },
-  toggleButtonText: { color: '#fff', fontWeight: '600', fontSize: typography.sizeSm },
-  commentsHeader: { color: colors.fgSubtle, fontSize: typography.sizeSm, fontWeight: '700', marginTop: spacing.lg, textTransform: 'uppercase' },
-  emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.md },
-  commentCard: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  commentAuthor: { color: colors.fgDefault, fontWeight: '700', fontSize: typography.sizeSm },
-  commentBody: { color: colors.fgDefault, fontSize: typography.sizeSm, marginTop: 4, lineHeight: 18 },
-  commentDate: { color: colors.fgSubtle, fontSize: 11, marginTop: spacing.sm },
-  commentBar: {
-    flexDirection: 'row', alignItems: 'flex-end', padding: spacing.sm,
-    borderTopColor: colors.border, borderTopWidth: 1, backgroundColor: colors.bgSubtle,
-  },
-  commentInput: {
-    flex: 1, color: colors.fgDefault, borderColor: colors.border, borderWidth: 1, borderRadius: 8,
-    paddingHorizontal: spacing.sm, paddingVertical: spacing.sm, maxHeight: 100, marginRight: spacing.sm,
-  },
-  postButton: { backgroundColor: colors.successEmphasis, borderRadius: 8, paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
-  postButtonText: { color: '#fff', fontWeight: '600' },
-});

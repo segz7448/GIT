@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { getRateLimitState, subscribeToRateLimit, isRateLimitLow } from '../services/rateLimitTracker';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 function formatResetTime(resetAt) {
   if (!resetAt) return '';
@@ -20,6 +21,26 @@ function formatResetTime(resetAt) {
  * before that), so it doesn't clutter a fresh app launch.
  */
 export default function RateLimitIndicator() {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    card: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md,
+    },
+    emptyText: { color: colors.fgSubtle, fontSize: typography.sizeSm, lineHeight: 18 },
+    headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    title: { color: colors.fgMuted, fontSize: typography.sizeSm, textTransform: 'uppercase' },
+    countText: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '700' },
+    countTextLow: { color: colors.danger },
+    track: {
+      height: 6, borderRadius: 3, backgroundColor: colors.borderMuted, overflow: 'hidden', marginTop: spacing.sm,
+    },
+    fill: { height: '100%', backgroundColor: colors.accentEmphasis, borderRadius: 3 },
+    fillLow: { backgroundColor: colors.danger },
+    warningText: { color: colors.danger, fontSize: typography.sizeSm, marginTop: spacing.sm, lineHeight: 18 },
+    resetText: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: spacing.sm },
+  });
   const [state, setState] = useState(getRateLimitState());
 
   useEffect(() => {
@@ -63,22 +84,3 @@ export default function RateLimitIndicator() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  card: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md,
-  },
-  emptyText: { color: colors.fgSubtle, fontSize: typography.sizeSm, lineHeight: 18 },
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  title: { color: colors.fgMuted, fontSize: typography.sizeSm, textTransform: 'uppercase' },
-  countText: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '700' },
-  countTextLow: { color: colors.danger },
-  track: {
-    height: 6, borderRadius: 3, backgroundColor: colors.borderMuted, overflow: 'hidden', marginTop: spacing.sm,
-  },
-  fill: { height: '100%', backgroundColor: colors.accentEmphasis, borderRadius: 3 },
-  fillLow: { backgroundColor: colors.danger },
-  warningText: { color: colors.danger, fontSize: typography.sizeSm, marginTop: spacing.sm, lineHeight: 18 },
-  resetText: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: spacing.sm },
-});

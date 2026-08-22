@@ -5,7 +5,8 @@ import {
   discardJournalEntry,
   pruneStaleJournalEntries,
 } from '../db/sessionJournal';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 const KIND_LABELS = {
   zip_upload: 'ZIP upload',
@@ -34,6 +35,36 @@ function describeEntry(entry) {
  * them clear the record and retry from the relevant screen.
  */
 export default function RecoveryBanner() {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: {
+      position: 'absolute',
+      top: 50,
+      left: 0,
+      right: 0,
+      paddingHorizontal: spacing.md,
+      zIndex: 999,
+    },
+    banner: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.bgSubtle,
+      borderColor: colors.warningEmphasis,
+      borderWidth: 1,
+      borderRadius: 8,
+      padding: spacing.sm,
+      marginBottom: spacing.sm,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.3,
+      shadowRadius: 4,
+      elevation: 4,
+    },
+    text: { flex: 1, color: colors.fgDefault, fontSize: typography.sizeSm },
+    dismissButton: { paddingHorizontal: spacing.sm, paddingVertical: 4 },
+    dismissText: { color: colors.accent, fontWeight: '600', fontSize: typography.sizeSm },
+  });
   const [entries, setEntries] = useState([]);
 
   const load = useCallback(async () => {
@@ -66,32 +97,3 @@ export default function RecoveryBanner() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    top: 50,
-    left: 0,
-    right: 0,
-    paddingHorizontal: spacing.md,
-    zIndex: 999,
-  },
-  banner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.bgSubtle,
-    borderColor: colors.warningEmphasis,
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: spacing.sm,
-    marginBottom: spacing.sm,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 4,
-  },
-  text: { flex: 1, color: colors.fgDefault, fontSize: typography.sizeSm },
-  dismissButton: { paddingHorizontal: spacing.sm, paddingVertical: 4 },
-  dismissText: { color: colors.accent, fontWeight: '600', fontSize: typography.sizeSm },
-});

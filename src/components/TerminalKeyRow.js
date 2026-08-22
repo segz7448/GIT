@@ -1,6 +1,6 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
-import { colors } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 /**
  * The extra-keys row Termux itself shows above its keyboard, styled to
@@ -17,6 +17,9 @@ import { colors } from '../theme';
  *  - CTRL/ALT are sticky modifiers: CTRL+C stops the active running
  *    command (the real equivalent of a terminal's Ctrl+C), ALT+Left/
  *    Right jumps the cursor by a word
+ *
+ * Follows the selected app theme (not perpetually black like most
+ * terminal apps default to) - light theme means a light key row too.
  */
 export default function TerminalKeyRow({
   ctrlActive,
@@ -31,6 +34,32 @@ export default function TerminalKeyRow({
   onPageUp,
   onPageDown,
 }) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    row: {
+      backgroundColor: colors.bgInset,
+      borderTopColor: colors.border,
+      borderTopWidth: 1,
+      maxHeight: 44,
+    },
+    rowContent: { paddingHorizontal: 4, alignItems: 'center' },
+    key: {
+      minWidth: 40,
+      height: 34,
+      marginHorizontal: 2,
+      borderRadius: 4,
+      backgroundColor: colors.bgSubtle,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 8,
+    },
+    keyWide: { minWidth: 52 },
+    keyActive: { backgroundColor: colors.accentEmphasis },
+    keyText: { color: colors.fgMuted, fontSize: 12, fontWeight: '600' },
+    keyTextActive: { color: '#fff' },
+  });
+
   const Key = ({ label, onPress, active, wide }) => (
     <TouchableOpacity
       style={[styles.key, wide && styles.keyWide, active && styles.keyActive]}
@@ -63,27 +92,3 @@ export default function TerminalKeyRow({
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  row: {
-    backgroundColor: '#000000',
-    borderTopColor: colors.border,
-    borderTopWidth: 1,
-    maxHeight: 44,
-  },
-  rowContent: { paddingHorizontal: 4, alignItems: 'center' },
-  key: {
-    minWidth: 40,
-    height: 34,
-    marginHorizontal: 2,
-    borderRadius: 4,
-    backgroundColor: '#1a1a1a',
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 8,
-  },
-  keyWide: { minWidth: 52 },
-  keyActive: { backgroundColor: colors.accentEmphasis },
-  keyText: { color: '#d0d0d0', fontSize: 12, fontWeight: '600' },
-  keyTextActive: { color: '#fff' },
-});

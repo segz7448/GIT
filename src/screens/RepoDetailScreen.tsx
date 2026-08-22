@@ -14,7 +14,8 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import { getContents, deleteFile, createOrUpdateFile, listBranches, commitMultipleFiles, getRepo, renameOrMoveFile, renameOrMoveFolder, duplicateFile, getRepoTreeRecursive } from '../services/github';
 import { useStaging } from '../context/StagingContext';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 import PremiumIcon from '../components/icons/PremiumIcon';
 import FileRow from '../components/FileRow';
 import BranchManagerModal from '../components/BranchManagerModal';
@@ -22,6 +23,103 @@ import FileActionsModal from '../components/FileActionsModal';
 import { saveRepoListing, getCachedRepoListing } from '../db/repoCache';
 
 export default function RepoDetailScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    actionBarWrap: {
+      borderBottomColor: colors.border,
+      borderBottomWidth: 1,
+      padding: spacing.sm,
+      gap: spacing.sm,
+    },
+    stagedBanner: {
+      backgroundColor: 'rgba(210,153,34,0.15)',
+      borderColor: colors.warning,
+      borderWidth: 1,
+      borderRadius: 8,
+      padding: spacing.sm,
+      alignItems: 'center',
+    },
+    stagedBannerText: { color: colors.warning, fontSize: typography.sizeSm, fontWeight: '600' },
+    offlineBanner: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: 'rgba(88,166,255,0.12)',
+      borderColor: colors.accent,
+      borderWidth: 1,
+      borderRadius: 8,
+      padding: spacing.sm,
+      marginHorizontal: spacing.md,
+      marginTop: spacing.sm,
+    },
+    offlineBannerText: { color: colors.fgMuted, fontSize: typography.sizeSm, flex: 1, marginRight: spacing.sm },
+    offlineBannerRetry: { color: colors.accent, fontWeight: '600', fontSize: typography.sizeSm },
+    actionBar: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+    },
+    actionButton: {
+      flex: 1,
+      backgroundColor: colors.bgSubtle,
+      borderColor: colors.border,
+      borderWidth: 1,
+      borderRadius: 8,
+      paddingVertical: spacing.sm,
+      alignItems: 'center',
+    },
+    actionButtonText: { color: colors.accent, fontSize: typography.sizeSm, fontWeight: '600' },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: spacing.md,
+      borderBottomColor: colors.borderMuted,
+      borderBottomWidth: 1,
+    },
+    icon: { fontSize: 18, marginRight: spacing.sm },
+    name: { color: colors.fgDefault, flex: 1, fontSize: typography.sizeMd },
+    size: { color: colors.fgSubtle, fontSize: typography.sizeSm },
+    centerBox: { alignItems: 'center', marginTop: spacing.xl },
+    errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
+    retryButton: { marginTop: spacing.md, padding: spacing.sm },
+    retryText: { color: colors.accent },
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
+    branchList: {
+      backgroundColor: colors.bgSubtle,
+      borderRadius: 12,
+      borderColor: colors.border,
+      borderWidth: 1,
+      padding: spacing.sm,
+      minWidth: 200,
+      maxHeight: 300,
+    },
+    branchItem: { padding: spacing.md },
+    branchText: { color: colors.fgDefault },
+    newFileCard: {
+      backgroundColor: colors.bgSubtle,
+      borderRadius: 12,
+      borderColor: colors.border,
+      borderWidth: 1,
+      padding: spacing.lg,
+      width: '85%',
+    },
+    modalTitle: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700', marginBottom: spacing.md },
+    modalInput: {
+      backgroundColor: colors.bgInset,
+      borderColor: colors.border,
+      borderWidth: 1,
+      borderRadius: 8,
+      color: colors.fgDefault,
+      padding: spacing.md,
+    },
+    folderHint: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: spacing.sm, lineHeight: 16 },
+    modalActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
+    modalCancelButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
+    modalCancelText: { color: colors.fgMuted },
+    modalCreateButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, backgroundColor: colors.successEmphasis },
+    modalCreateText: { color: '#fff', fontWeight: '600' },
+  });
   const { owner, repo, path: initialPath = '' } = route.params;
   const [path, setPath] = useState(initialPath);
   const [items, setItems] = useState([]);
@@ -478,99 +576,3 @@ export default function RepoDetailScreen({ route, navigation }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  actionBarWrap: {
-    borderBottomColor: colors.border,
-    borderBottomWidth: 1,
-    padding: spacing.sm,
-    gap: spacing.sm,
-  },
-  stagedBanner: {
-    backgroundColor: 'rgba(210,153,34,0.15)',
-    borderColor: colors.warning,
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: spacing.sm,
-    alignItems: 'center',
-  },
-  stagedBannerText: { color: colors.warning, fontSize: typography.sizeSm, fontWeight: '600' },
-  offlineBanner: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: 'rgba(88,166,255,0.12)',
-    borderColor: colors.accent,
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: spacing.sm,
-    marginHorizontal: spacing.md,
-    marginTop: spacing.sm,
-  },
-  offlineBannerText: { color: colors.fgMuted, fontSize: typography.sizeSm, flex: 1, marginRight: spacing.sm },
-  offlineBannerRetry: { color: colors.accent, fontWeight: '600', fontSize: typography.sizeSm },
-  actionBar: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  actionButton: {
-    flex: 1,
-    backgroundColor: colors.bgSubtle,
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingVertical: spacing.sm,
-    alignItems: 'center',
-  },
-  actionButtonText: { color: colors.accent, fontSize: typography.sizeSm, fontWeight: '600' },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.md,
-    borderBottomColor: colors.borderMuted,
-    borderBottomWidth: 1,
-  },
-  icon: { fontSize: 18, marginRight: spacing.sm },
-  name: { color: colors.fgDefault, flex: 1, fontSize: typography.sizeMd },
-  size: { color: colors.fgSubtle, fontSize: typography.sizeSm },
-  centerBox: { alignItems: 'center', marginTop: spacing.xl },
-  errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
-  retryButton: { marginTop: spacing.md, padding: spacing.sm },
-  retryText: { color: colors.accent },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
-  branchList: {
-    backgroundColor: colors.bgSubtle,
-    borderRadius: 12,
-    borderColor: colors.border,
-    borderWidth: 1,
-    padding: spacing.sm,
-    minWidth: 200,
-    maxHeight: 300,
-  },
-  branchItem: { padding: spacing.md },
-  branchText: { color: colors.fgDefault },
-  newFileCard: {
-    backgroundColor: colors.bgSubtle,
-    borderRadius: 12,
-    borderColor: colors.border,
-    borderWidth: 1,
-    padding: spacing.lg,
-    width: '85%',
-  },
-  modalTitle: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700', marginBottom: spacing.md },
-  modalInput: {
-    backgroundColor: colors.bgInset,
-    borderColor: colors.border,
-    borderWidth: 1,
-    borderRadius: 8,
-    color: colors.fgDefault,
-    padding: spacing.md,
-  },
-  folderHint: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: spacing.sm, lineHeight: 16 },
-  modalActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
-  modalCancelButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
-  modalCancelText: { color: colors.fgMuted },
-  modalCreateButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, backgroundColor: colors.successEmphasis },
-  modalCreateText: { color: '#fff', fontWeight: '600' },
-});

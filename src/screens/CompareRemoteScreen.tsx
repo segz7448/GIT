@@ -4,7 +4,8 @@ import { getFileContent } from '../services/github';
 import { listBackups } from '../db/fileBackups';
 import { useStaging } from '../context/StagingContext';
 import DiffView from '../components/DiffView';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 /**
  * Compares a file against its current remote (GitHub) version. The
@@ -13,6 +14,24 @@ import { colors, spacing, typography } from '../theme';
  * "what I have locally that GitHub doesn't necessarily have yet".
  */
 export default function CompareRemoteScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
+    errorText: { color: colors.danger, textAlign: 'center' },
+    emptyText: { color: colors.fgSubtle, textAlign: 'center' },
+    tabsRow: { maxHeight: 48, marginVertical: spacing.sm },
+    tab: {
+      paddingHorizontal: spacing.md, paddingVertical: spacing.sm, marginRight: spacing.sm,
+      borderRadius: 8, borderColor: colors.border, borderWidth: 1, maxWidth: 220,
+    },
+    tabActive: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
+    tabText: { color: colors.fgMuted, fontSize: typography.sizeSm },
+    tabTextActive: { color: '#fff', fontWeight: '600' },
+    diffHint: { color: colors.fgSubtle, fontSize: typography.sizeSm, textAlign: 'center', marginBottom: spacing.sm },
+    diff: { flex: 1 },
+  });
   const { owner, repo, path, branch } = route.params;
   const [remoteContent, setRemoteContent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -105,20 +124,3 @@ export default function CompareRemoteScreen({ route, navigation }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
-  errorText: { color: colors.danger, textAlign: 'center' },
-  emptyText: { color: colors.fgSubtle, textAlign: 'center' },
-  tabsRow: { maxHeight: 48, marginVertical: spacing.sm },
-  tab: {
-    paddingHorizontal: spacing.md, paddingVertical: spacing.sm, marginRight: spacing.sm,
-    borderRadius: 8, borderColor: colors.border, borderWidth: 1, maxWidth: 220,
-  },
-  tabActive: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
-  tabText: { color: colors.fgMuted, fontSize: typography.sizeSm },
-  tabTextActive: { color: '#fff', fontWeight: '600' },
-  diffHint: { color: colors.fgSubtle, fontSize: typography.sizeSm, textAlign: 'center', marginBottom: spacing.sm },
-  diff: { flex: 1 },
-});

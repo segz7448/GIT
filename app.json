@@ -5,13 +5,22 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "automatic",
     "scheme": "gitmanager",
     "plugins": [
       "@actualwave/react-native-codeditor",
       "expo-notifications",
       "@react-native-firebase/app",
       "@react-native-firebase/messaging",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 260,
+          "resizeMode": "contain",
+          "backgroundColor": "#0d1117"
+        }
+      ],
       "./plugins/withReleaseSigning.js",
       "./plugins/withTermuxIntegration.js",
       "./plugins/withRepoActionsWidget.js"

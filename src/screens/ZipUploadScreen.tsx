@@ -12,7 +12,8 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system/legacy';
 import JSZip from 'jszip';
 import { commitMultipleFiles, getRepoTreeRecursive } from '../services/github';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 import { palette } from '../theme/tokens';
 import PremiumIcon from '../components/icons/PremiumIcon';
 import {
@@ -64,6 +65,113 @@ function isBinaryPath(path) {
 }
 
 export default function ZipUploadScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    backupToggleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: spacing.md,
+      paddingVertical: spacing.sm,
+    },
+    checkbox: {
+      width: 20,
+      height: 20,
+      borderRadius: 4,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      marginRight: spacing.sm,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    checkboxChecked: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
+    checkboxTick: { color: '#fff', fontSize: 13, fontWeight: '700' },
+    backupToggleText: { color: colors.fgMuted, fontSize: typography.sizeSm, flex: 1 },
+    workflowCheckingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
+    workflowCheckingText: { color: colors.fgSubtle, fontSize: typography.sizeSm },
+    workflowCard: {
+      marginHorizontal: spacing.md, marginTop: spacing.sm, padding: spacing.md,
+      backgroundColor: 'rgba(88,166,255,0.08)', borderColor: colors.accent, borderWidth: 1, borderRadius: 10,
+    },
+    workflowCardTitle: { color: colors.fgDefault, fontSize: typography.sizeSm, fontWeight: '700', marginBottom: spacing.xs },
+    workflowCardDetail: { color: colors.fgMuted, fontSize: typography.sizeSm, lineHeight: 18, marginBottom: spacing.sm },
+    ignoredCard: {
+      marginTop: spacing.sm, marginBottom: spacing.sm, padding: spacing.md,
+      backgroundColor: 'rgba(210,153,34,0.08)', borderColor: colors.warning, borderWidth: 1, borderRadius: 10,
+    },
+    ignoredCardTitle: { color: colors.warning, fontSize: typography.sizeSm, fontWeight: '700' },
+    ignoredCardToggleLink: { color: colors.accent, fontSize: typography.sizeSm, fontWeight: '600', marginTop: spacing.xs },
+    ignoredListBox: { marginTop: spacing.sm, paddingLeft: spacing.sm },
+    ignoredListItem: { color: colors.fgMuted, fontFamily: typography.mono, fontSize: 11, marginTop: 2 },
+    fileRowIgnored: { opacity: 0.5 },
+    filePathIgnored: { textDecorationLine: 'line-through' },
+    ignoredTag: { color: colors.warning, fontSize: 10, fontWeight: '700', marginLeft: spacing.sm },
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    header: {
+      padding: spacing.md,
+      borderBottomColor: colors.border,
+      borderBottomWidth: 1,
+    },
+    headerText: { color: colors.fgMuted, fontSize: typography.sizeSm },
+    pickArea: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
+    pickButton: {
+      backgroundColor: colors.accentEmphasis,
+      borderRadius: 10,
+      paddingVertical: spacing.md,
+      paddingHorizontal: spacing.xl,
+      width: '100%',
+      alignItems: 'center',
+      marginBottom: spacing.sm,
+    },
+    pickButtonSecondary: { backgroundColor: colors.bgSubtle, borderColor: colors.accent, borderWidth: 1 },
+    pickButtonText: { color: '#fff', fontWeight: '600', fontSize: typography.sizeMd },
+    hint: { color: colors.fgSubtle, fontSize: typography.sizeSm, textAlign: 'center', marginTop: spacing.lg },
+    progressWrap: { width: '100%', marginTop: spacing.lg, alignItems: 'center' },
+    progressTrack: {
+      width: '100%',
+      height: 6,
+      borderRadius: 3,
+      backgroundColor: colors.borderMuted,
+      overflow: 'hidden',
+    },
+    progressFill: { height: '100%', backgroundColor: colors.accentEmphasis, borderRadius: 3 },
+    progressLabel: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: spacing.sm },
+    countText: { color: colors.fgMuted, marginBottom: spacing.sm, fontSize: typography.sizeSm },
+    fileRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: spacing.sm,
+      borderBottomColor: colors.borderMuted,
+      borderBottomWidth: 1,
+    },
+    fileIcon: { marginRight: spacing.sm },
+    filePath: { color: colors.fgDefault, flex: 1, fontFamily: typography.mono, fontSize: typography.sizeSm },
+    actionBar: {
+      flexDirection: 'row',
+      gap: spacing.sm,
+      padding: spacing.md,
+      borderTopColor: colors.border,
+      borderTopWidth: 1,
+    },
+    cancelButton: {
+      flex: 1,
+      padding: spacing.md,
+      alignItems: 'center',
+      borderRadius: 8,
+      borderColor: colors.border,
+      borderWidth: 1,
+    },
+    cancelButtonText: { color: colors.fgMuted, fontSize: typography.sizeSm },
+    commitButton: {
+      flex: 1,
+      padding: spacing.md,
+      alignItems: 'center',
+      borderRadius: 8,
+      backgroundColor: colors.successEmphasis,
+    },
+    commitButtonText: { color: '#fff', fontWeight: '600' },
+    committingRow: { flexDirection: 'row', alignItems: 'center' },
+  });
   const { owner, repo, path: targetDir, branch: initialBranch } = route.params;
   const branch = initialBranch || 'main';
 
@@ -749,109 +857,3 @@ export default function ZipUploadScreen({ route, navigation }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  backupToggleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: spacing.md,
-    paddingVertical: spacing.sm,
-  },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    marginRight: spacing.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxChecked: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
-  checkboxTick: { color: '#fff', fontSize: 13, fontWeight: '700' },
-  backupToggleText: { color: colors.fgMuted, fontSize: typography.sizeSm, flex: 1 },
-  workflowCheckingRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
-  workflowCheckingText: { color: colors.fgSubtle, fontSize: typography.sizeSm },
-  workflowCard: {
-    marginHorizontal: spacing.md, marginTop: spacing.sm, padding: spacing.md,
-    backgroundColor: 'rgba(88,166,255,0.08)', borderColor: colors.accent, borderWidth: 1, borderRadius: 10,
-  },
-  workflowCardTitle: { color: colors.fgDefault, fontSize: typography.sizeSm, fontWeight: '700', marginBottom: spacing.xs },
-  workflowCardDetail: { color: colors.fgMuted, fontSize: typography.sizeSm, lineHeight: 18, marginBottom: spacing.sm },
-  ignoredCard: {
-    marginTop: spacing.sm, marginBottom: spacing.sm, padding: spacing.md,
-    backgroundColor: 'rgba(210,153,34,0.08)', borderColor: colors.warning, borderWidth: 1, borderRadius: 10,
-  },
-  ignoredCardTitle: { color: colors.warning, fontSize: typography.sizeSm, fontWeight: '700' },
-  ignoredCardToggleLink: { color: colors.accent, fontSize: typography.sizeSm, fontWeight: '600', marginTop: spacing.xs },
-  ignoredListBox: { marginTop: spacing.sm, paddingLeft: spacing.sm },
-  ignoredListItem: { color: colors.fgMuted, fontFamily: typography.mono, fontSize: 11, marginTop: 2 },
-  fileRowIgnored: { opacity: 0.5 },
-  filePathIgnored: { textDecorationLine: 'line-through' },
-  ignoredTag: { color: colors.warning, fontSize: 10, fontWeight: '700', marginLeft: spacing.sm },
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  header: {
-    padding: spacing.md,
-    borderBottomColor: colors.border,
-    borderBottomWidth: 1,
-  },
-  headerText: { color: colors.fgMuted, fontSize: typography.sizeSm },
-  pickArea: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
-  pickButton: {
-    backgroundColor: colors.accentEmphasis,
-    borderRadius: 10,
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.xl,
-    width: '100%',
-    alignItems: 'center',
-    marginBottom: spacing.sm,
-  },
-  pickButtonSecondary: { backgroundColor: colors.bgSubtle, borderColor: colors.accent, borderWidth: 1 },
-  pickButtonText: { color: '#fff', fontWeight: '600', fontSize: typography.sizeMd },
-  hint: { color: colors.fgSubtle, fontSize: typography.sizeSm, textAlign: 'center', marginTop: spacing.lg },
-  progressWrap: { width: '100%', marginTop: spacing.lg, alignItems: 'center' },
-  progressTrack: {
-    width: '100%',
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: colors.borderMuted,
-    overflow: 'hidden',
-  },
-  progressFill: { height: '100%', backgroundColor: colors.accentEmphasis, borderRadius: 3 },
-  progressLabel: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: spacing.sm },
-  countText: { color: colors.fgMuted, marginBottom: spacing.sm, fontSize: typography.sizeSm },
-  fileRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: spacing.sm,
-    borderBottomColor: colors.borderMuted,
-    borderBottomWidth: 1,
-  },
-  fileIcon: { marginRight: spacing.sm },
-  filePath: { color: colors.fgDefault, flex: 1, fontFamily: typography.mono, fontSize: typography.sizeSm },
-  actionBar: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-    padding: spacing.md,
-    borderTopColor: colors.border,
-    borderTopWidth: 1,
-  },
-  cancelButton: {
-    flex: 1,
-    padding: spacing.md,
-    alignItems: 'center',
-    borderRadius: 8,
-    borderColor: colors.border,
-    borderWidth: 1,
-  },
-  cancelButtonText: { color: colors.fgMuted, fontSize: typography.sizeSm },
-  commitButton: {
-    flex: 1,
-    padding: spacing.md,
-    alignItems: 'center',
-    borderRadius: 8,
-    backgroundColor: colors.successEmphasis,
-  },
-  commitButtonText: { color: '#fff', fontWeight: '600' },
-  committingRow: { flexDirection: 'row', alignItems: 'center' },
-});

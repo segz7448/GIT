@@ -9,9 +9,33 @@ import {
   RefreshControl,
 } from 'react-native';
 import { listReleases } from '../services/github';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 export default function ReleasesListScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
+    centerBox: { alignItems: 'center', marginTop: spacing.xl },
+    errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
+    retryButton: { marginTop: spacing.md, padding: spacing.sm },
+    retryText: { color: colors.accent },
+    emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
+    releaseCard: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    releaseHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    releaseName: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '700', flex: 1 },
+    draftBadge: { backgroundColor: 'rgba(139,148,158,0.2)', paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: 10 },
+    draftBadgeText: { color: colors.fgMuted, fontSize: 11, fontWeight: '600' },
+    preBadge: { backgroundColor: 'rgba(210,153,34,0.2)', paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: 10 },
+    preBadgeText: { color: colors.warning, fontSize: 11, fontWeight: '600' },
+    releaseMeta: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: 4 },
+    releaseDate: { color: colors.fgSubtle, fontSize: 11, marginTop: 2 },
+  });
   const { owner, repo } = route.params;
   const [releases, setReleases] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -104,25 +128,3 @@ export default function ReleasesListScreen({ route, navigation }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
-  centerBox: { alignItems: 'center', marginTop: spacing.xl },
-  errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
-  retryButton: { marginTop: spacing.md, padding: spacing.sm },
-  retryText: { color: colors.accent },
-  emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
-  releaseCard: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  releaseHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  releaseName: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '700', flex: 1 },
-  draftBadge: { backgroundColor: 'rgba(139,148,158,0.2)', paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: 10 },
-  draftBadgeText: { color: colors.fgMuted, fontSize: 11, fontWeight: '600' },
-  preBadge: { backgroundColor: 'rgba(210,153,34,0.2)', paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: 10 },
-  preBadgeText: { color: colors.warning, fontSize: 11, fontWeight: '600' },
-  releaseMeta: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: 4 },
-  releaseDate: { color: colors.fgSubtle, fontSize: 11, marginTop: 2 },
-});

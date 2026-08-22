@@ -28,10 +28,107 @@ import {
   deleteRepoVariable,
 } from '../services/github';
 import { encryptSecretValue } from '../utils/secretEncryption';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 import PremiumIcon from '../components/icons/PremiumIcon';
 
 export default function RepoSettingsScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
+    sectionLabel: { color: colors.fgMuted, fontSize: typography.sizeSm, textTransform: 'uppercase', marginBottom: spacing.sm, marginTop: spacing.md },
+    sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    addLink: { color: colors.accent, fontSize: typography.sizeSm },
+    hintText: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginBottom: spacing.sm, lineHeight: 16 },
+    card: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.md,
+    },
+    fieldLabel: { color: colors.fgMuted, fontSize: typography.sizeSm },
+    fieldValue: { color: colors.fgDefault, fontSize: typography.sizeMd, marginTop: 2 },
+    textInput: {
+      backgroundColor: colors.bgInset, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 8, padding: spacing.sm, color: colors.fgDefault, marginTop: spacing.xs,
+    },
+    toggleRow: {
+      flexDirection: 'row', alignItems: 'center', marginTop: spacing.md,
+      paddingTop: spacing.md, borderTopColor: colors.borderMuted, borderTopWidth: 1,
+    },
+    toggleAction: { color: colors.accent, fontSize: typography.sizeSm, fontWeight: '600' },
+    emptyText: { color: colors.fgSubtle, fontSize: typography.sizeSm },
+    itemRow: {
+      flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+      paddingVertical: spacing.sm, borderBottomColor: colors.borderMuted, borderBottomWidth: 1,
+    },
+    itemName: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: typography.sizeSm },
+    itemValue: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: 2 },
+    deleteLink: { color: colors.danger, fontSize: typography.sizeSm },
+    protectionCard: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.md,
+    },
+    protectionRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.sm },
+    protectionRowText: { color: colors.fgDefault, fontSize: typography.sizeSm, flex: 1 },
+    checkbox: {
+      width: 20, height: 20, borderRadius: 4, borderWidth: 1.5, borderColor: colors.border,
+      marginRight: spacing.sm, alignItems: 'center', justifyContent: 'center',
+    },
+    checkboxChecked: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
+    checkboxTick: { color: '#fff', fontSize: 13, fontWeight: '700' },
+    approvalCountRow: { flexDirection: 'row', alignItems: 'center', paddingLeft: spacing.xl, paddingBottom: spacing.sm, gap: spacing.sm },
+    approvalCountLabel: { color: colors.fgMuted, fontSize: typography.sizeSm },
+    approvalChip: { width: 28, height: 28, borderRadius: 14, borderColor: colors.border, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
+    approvalChipActive: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
+    approvalChipText: { color: colors.fgMuted, fontSize: typography.sizeSm },
+    approvalChipTextActive: { color: '#fff', fontWeight: '700' },
+    protectionActionsRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
+    protectionRemoveButton: { flex: 1, padding: spacing.sm, alignItems: 'center', borderRadius: 8, borderColor: colors.danger, borderWidth: 1 },
+    protectionRemoveButtonText: { color: colors.danger, fontSize: typography.sizeSm, fontWeight: '600' },
+    protectionSaveButton: { flex: 1, padding: spacing.sm, alignItems: 'center', borderRadius: 8, backgroundColor: colors.successEmphasis },
+    protectionSaveButtonText: { color: '#fff', fontSize: typography.sizeSm, fontWeight: '700' },
+    dangerCard: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.danger, borderWidth: 1,
+      borderRadius: 10, marginBottom: spacing.md, overflow: 'hidden',
+    },
+    dangerRow: {
+      flexDirection: 'row', alignItems: 'center', padding: spacing.md,
+      borderBottomColor: colors.danger, borderBottomWidth: StyleSheet.hairlineWidth,
+    },
+    dangerRowLast: { borderBottomWidth: 0 },
+    dangerRowTitle: { color: colors.fgDefault, fontSize: typography.sizeSm, fontWeight: '600' },
+    dangerRowDetail: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: 2 },
+    dangerButtonOutline: {
+      borderColor: colors.danger, borderWidth: 1, borderRadius: 8,
+      paddingHorizontal: spacing.md, paddingVertical: spacing.sm, marginLeft: spacing.sm,
+    },
+    dangerButtonOutlineText: { color: colors.danger, fontSize: typography.sizeSm, fontWeight: '600' },
+    dangerButtonFilled: {
+      backgroundColor: colors.danger, borderRadius: 8,
+      paddingHorizontal: spacing.md, paddingVertical: spacing.sm, marginLeft: spacing.sm,
+    },
+    dangerButtonFilledText: { color: '#fff', fontSize: typography.sizeSm, fontWeight: '700' },
+    modalDangerButton: {
+      flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, backgroundColor: colors.danger,
+    },
+    transferHint: { color: colors.fgMuted, fontSize: typography.sizeSm, lineHeight: 18, marginBottom: spacing.md },
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
+    modalCard: {
+      backgroundColor: colors.bgSubtle, borderTopLeftRadius: 16, borderTopRightRadius: 16,
+      padding: spacing.lg, borderColor: colors.border, borderWidth: 1,
+    },
+    modalTitle: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700', marginBottom: spacing.md },
+    modalInput: {
+      backgroundColor: colors.bgInset, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 8, color: colors.fgDefault, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    modalActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
+    modalCancelButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
+    modalCancelText: { color: colors.fgMuted },
+    modalSaveButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, backgroundColor: colors.successEmphasis },
+    modalSaveText: { color: '#fff', fontWeight: '600' },
+  });
   const { owner, repo } = route.params;
 
   const [repoData, setRepoData] = useState(null);
@@ -651,98 +748,3 @@ export default function RepoSettingsScreen({ route, navigation }: any) {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
-  sectionLabel: { color: colors.fgMuted, fontSize: typography.sizeSm, textTransform: 'uppercase', marginBottom: spacing.sm, marginTop: spacing.md },
-  sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  addLink: { color: colors.accent, fontSize: typography.sizeSm },
-  hintText: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginBottom: spacing.sm, lineHeight: 16 },
-  card: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.md,
-  },
-  fieldLabel: { color: colors.fgMuted, fontSize: typography.sizeSm },
-  fieldValue: { color: colors.fgDefault, fontSize: typography.sizeMd, marginTop: 2 },
-  textInput: {
-    backgroundColor: colors.bgInset, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 8, padding: spacing.sm, color: colors.fgDefault, marginTop: spacing.xs,
-  },
-  toggleRow: {
-    flexDirection: 'row', alignItems: 'center', marginTop: spacing.md,
-    paddingTop: spacing.md, borderTopColor: colors.borderMuted, borderTopWidth: 1,
-  },
-  toggleAction: { color: colors.accent, fontSize: typography.sizeSm, fontWeight: '600' },
-  emptyText: { color: colors.fgSubtle, fontSize: typography.sizeSm },
-  itemRow: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingVertical: spacing.sm, borderBottomColor: colors.borderMuted, borderBottomWidth: 1,
-  },
-  itemName: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: typography.sizeSm },
-  itemValue: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: 2 },
-  deleteLink: { color: colors.danger, fontSize: typography.sizeSm },
-  protectionCard: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.md,
-  },
-  protectionRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: spacing.sm },
-  protectionRowText: { color: colors.fgDefault, fontSize: typography.sizeSm, flex: 1 },
-  checkbox: {
-    width: 20, height: 20, borderRadius: 4, borderWidth: 1.5, borderColor: colors.border,
-    marginRight: spacing.sm, alignItems: 'center', justifyContent: 'center',
-  },
-  checkboxChecked: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
-  checkboxTick: { color: '#fff', fontSize: 13, fontWeight: '700' },
-  approvalCountRow: { flexDirection: 'row', alignItems: 'center', paddingLeft: spacing.xl, paddingBottom: spacing.sm, gap: spacing.sm },
-  approvalCountLabel: { color: colors.fgMuted, fontSize: typography.sizeSm },
-  approvalChip: { width: 28, height: 28, borderRadius: 14, borderColor: colors.border, borderWidth: 1, alignItems: 'center', justifyContent: 'center' },
-  approvalChipActive: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
-  approvalChipText: { color: colors.fgMuted, fontSize: typography.sizeSm },
-  approvalChipTextActive: { color: '#fff', fontWeight: '700' },
-  protectionActionsRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
-  protectionRemoveButton: { flex: 1, padding: spacing.sm, alignItems: 'center', borderRadius: 8, borderColor: colors.danger, borderWidth: 1 },
-  protectionRemoveButtonText: { color: colors.danger, fontSize: typography.sizeSm, fontWeight: '600' },
-  protectionSaveButton: { flex: 1, padding: spacing.sm, alignItems: 'center', borderRadius: 8, backgroundColor: colors.successEmphasis },
-  protectionSaveButtonText: { color: '#fff', fontSize: typography.sizeSm, fontWeight: '700' },
-  dangerCard: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.danger, borderWidth: 1,
-    borderRadius: 10, marginBottom: spacing.md, overflow: 'hidden',
-  },
-  dangerRow: {
-    flexDirection: 'row', alignItems: 'center', padding: spacing.md,
-    borderBottomColor: colors.danger, borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  dangerRowLast: { borderBottomWidth: 0 },
-  dangerRowTitle: { color: colors.fgDefault, fontSize: typography.sizeSm, fontWeight: '600' },
-  dangerRowDetail: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: 2 },
-  dangerButtonOutline: {
-    borderColor: colors.danger, borderWidth: 1, borderRadius: 8,
-    paddingHorizontal: spacing.md, paddingVertical: spacing.sm, marginLeft: spacing.sm,
-  },
-  dangerButtonOutlineText: { color: colors.danger, fontSize: typography.sizeSm, fontWeight: '600' },
-  dangerButtonFilled: {
-    backgroundColor: colors.danger, borderRadius: 8,
-    paddingHorizontal: spacing.md, paddingVertical: spacing.sm, marginLeft: spacing.sm,
-  },
-  dangerButtonFilledText: { color: '#fff', fontSize: typography.sizeSm, fontWeight: '700' },
-  modalDangerButton: {
-    flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, backgroundColor: colors.danger,
-  },
-  transferHint: { color: colors.fgMuted, fontSize: typography.sizeSm, lineHeight: 18, marginBottom: spacing.md },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
-  modalCard: {
-    backgroundColor: colors.bgSubtle, borderTopLeftRadius: 16, borderTopRightRadius: 16,
-    padding: spacing.lg, borderColor: colors.border, borderWidth: 1,
-  },
-  modalTitle: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700', marginBottom: spacing.md },
-  modalInput: {
-    backgroundColor: colors.bgInset, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 8, color: colors.fgDefault, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  modalActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
-  modalCancelButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
-  modalCancelText: { color: colors.fgMuted },
-  modalSaveButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, backgroundColor: colors.successEmphasis },
-  modalSaveText: { color: '#fff', fontWeight: '600' },
-});

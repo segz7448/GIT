@@ -11,10 +11,45 @@ import {
   ScrollView,
 } from 'react-native';
 import { listWorkflows, listBranches, triggerWorkflowDispatch } from '../services/github';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 import PremiumIcon from '../components/icons/PremiumIcon';
 
 export default function WorkflowDispatchScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
+    errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
+    retryButton: { marginTop: spacing.md, padding: spacing.sm },
+    retryText: { color: colors.accent },
+    emptyText: { color: colors.fgSubtle, marginBottom: spacing.md },
+    label: { color: colors.fgMuted, fontSize: typography.sizeSm, textTransform: 'uppercase', marginTop: spacing.lg, marginBottom: spacing.sm },
+    chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+    chip: {
+      borderColor: colors.border, borderWidth: 1, borderRadius: 20,
+      paddingHorizontal: spacing.md, paddingVertical: spacing.xs, maxWidth: 220,
+    },
+    chipActive: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
+    chipText: { color: colors.fgMuted, fontSize: typography.sizeSm },
+    chipTextActive: { color: '#fff', fontWeight: '600' },
+    inputsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.lg },
+    addLink: { color: colors.accent, fontSize: typography.sizeSm },
+    inputRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.sm, alignItems: 'center' },
+    inputField: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 8, padding: spacing.sm, color: colors.fgDefault, fontSize: typography.sizeSm,
+    },
+    removeButton: { padding: spacing.sm },
+    removeButtonText: { color: colors.danger },
+    triggerButton: {
+      backgroundColor: colors.successEmphasis, borderRadius: 10,
+      padding: spacing.md, alignItems: 'center', marginTop: spacing.xl, marginBottom: spacing.xl,
+    },
+    triggerButtonDisabled: { opacity: 0.6 },
+    triggerButtonText: { color: '#fff', fontWeight: '700', fontSize: typography.sizeMd },
+  });
   const { owner, repo } = route.params;
   const [workflows, setWorkflows] = useState([]);
   const [branches, setBranches] = useState([]);
@@ -182,36 +217,3 @@ export default function WorkflowDispatchScreen({ route, navigation }: any) {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
-  errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
-  retryButton: { marginTop: spacing.md, padding: spacing.sm },
-  retryText: { color: colors.accent },
-  emptyText: { color: colors.fgSubtle, marginBottom: spacing.md },
-  label: { color: colors.fgMuted, fontSize: typography.sizeSm, textTransform: 'uppercase', marginTop: spacing.lg, marginBottom: spacing.sm },
-  chipRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  chip: {
-    borderColor: colors.border, borderWidth: 1, borderRadius: 20,
-    paddingHorizontal: spacing.md, paddingVertical: spacing.xs, maxWidth: 220,
-  },
-  chipActive: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
-  chipText: { color: colors.fgMuted, fontSize: typography.sizeSm },
-  chipTextActive: { color: '#fff', fontWeight: '600' },
-  inputsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.lg },
-  addLink: { color: colors.accent, fontSize: typography.sizeSm },
-  inputRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.sm, alignItems: 'center' },
-  inputField: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 8, padding: spacing.sm, color: colors.fgDefault, fontSize: typography.sizeSm,
-  },
-  removeButton: { padding: spacing.sm },
-  removeButtonText: { color: colors.danger },
-  triggerButton: {
-    backgroundColor: colors.successEmphasis, borderRadius: 10,
-    padding: spacing.md, alignItems: 'center', marginTop: spacing.xl, marginBottom: spacing.xl,
-  },
-  triggerButtonDisabled: { opacity: 0.6 },
-  triggerButtonText: { color: '#fff', fontWeight: '700', fontSize: typography.sizeMd },
-});

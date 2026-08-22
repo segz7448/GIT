@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, FlatList, Alert } from 'react-native';
 import { listStashes, deleteStash } from '../db/stashes';
 import { useStaging } from '../context/StagingContext';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 function formatTimestamp(ts) {
   return new Date(ts).toLocaleString(undefined, {
@@ -11,6 +12,24 @@ function formatTimestamp(ts) {
 }
 
 export default function StashesScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
+    card: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    label: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '700' },
+    meta: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: 2, marginBottom: spacing.sm },
+    filePath: { color: colors.fgMuted, fontFamily: typography.mono, fontSize: 11, marginTop: 2 },
+    actionsRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
+    deleteButton: { flex: 1, padding: spacing.sm, alignItems: 'center', borderRadius: 8, borderColor: colors.danger, borderWidth: 1 },
+    deleteButtonText: { color: colors.danger, fontSize: typography.sizeSm, fontWeight: '600' },
+    popButton: { flex: 2, padding: spacing.sm, alignItems: 'center', borderRadius: 8, backgroundColor: colors.successEmphasis },
+    popButtonText: { color: '#fff', fontSize: typography.sizeSm, fontWeight: '600' },
+  });
   const { owner, repo } = route.params;
   const [stashes, setStashes] = useState([]);
   const { stageFile, getStagedCount } = useStaging();
@@ -88,20 +107,3 @@ export default function StashesScreen({ route, navigation }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
-  card: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  label: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '700' },
-  meta: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: 2, marginBottom: spacing.sm },
-  filePath: { color: colors.fgMuted, fontFamily: typography.mono, fontSize: 11, marginTop: 2 },
-  actionsRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
-  deleteButton: { flex: 1, padding: spacing.sm, alignItems: 'center', borderRadius: 8, borderColor: colors.danger, borderWidth: 1 },
-  deleteButtonText: { color: colors.danger, fontSize: typography.sizeSm, fontWeight: '600' },
-  popButton: { flex: 2, padding: spacing.sm, alignItems: 'center', borderRadius: 8, backgroundColor: colors.successEmphasis },
-  popButtonText: { color: '#fff', fontSize: typography.sizeSm, fontWeight: '600' },
-});

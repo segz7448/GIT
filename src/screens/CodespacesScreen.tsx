@@ -17,7 +17,8 @@ import {
   deleteCodespace,
 } from '../services/github';
 import { setAutoRestart, listAutoRestartNames } from '../db/codespaceAutoRestart';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 import PremiumIcon from '../components/icons/PremiumIcon';
 
 // How often to check on codespaces with auto-restart enabled while this
@@ -49,6 +50,56 @@ function formatRelativeTime(iso) {
 }
 
 export default function CodespacesScreen({ navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
+    centerBox: { alignItems: 'center', marginTop: spacing.xl, paddingHorizontal: spacing.lg },
+    errorText: { color: colors.danger, textAlign: 'center' },
+    errorHint: { color: colors.fgSubtle, fontSize: typography.sizeSm, textAlign: 'center', marginTop: spacing.sm },
+    retryButton: { marginTop: spacing.md, padding: spacing.sm },
+    retryText: { color: colors.accent },
+    emptyText: { color: colors.fgSubtle, textAlign: 'center', lineHeight: 20 },
+    createButton: {
+      backgroundColor: colors.accentEmphasis, borderRadius: 10, paddingVertical: spacing.md,
+      alignItems: 'center', marginBottom: spacing.md,
+    },
+    createButtonText: { color: '#fff', fontWeight: '700', fontSize: typography.sizeMd },
+    infoCard: {
+      backgroundColor: 'rgba(88,166,255,0.08)', borderColor: colors.accent, borderWidth: 1,
+      borderRadius: 8, padding: spacing.sm, marginBottom: spacing.md,
+    },
+    infoCardText: { color: colors.fgMuted, fontSize: typography.sizeSm, lineHeight: 18 },
+    card: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    headerRow: { flexDirection: 'row', alignItems: 'center' },
+    stateDot: { width: 8, height: 8, borderRadius: 4, marginRight: spacing.sm },
+    repoName: { color: colors.fgMuted, fontSize: typography.sizeSm, flex: 1 },
+    displayName: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '700', marginTop: 4 },
+    meta: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: 4 },
+    metaSubtle: { color: colors.fgSubtle, fontSize: 11, marginTop: 2 },
+    uncommittedWarning: { color: colors.warning, fontSize: typography.sizeSm },
+    uncommittedRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: spacing.sm },
+    actionsRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.md, flexWrap: 'wrap' },
+    startButton: { backgroundColor: colors.successEmphasis, borderRadius: 6, paddingHorizontal: spacing.md, paddingVertical: spacing.xs },
+    startButtonText: { color: '#fff', fontSize: typography.sizeSm, fontWeight: '600' },
+    stopButton: { borderColor: colors.warning, borderWidth: 1, borderRadius: 6, paddingHorizontal: spacing.md, paddingVertical: spacing.xs },
+    stopButtonText: { color: colors.warning, fontSize: typography.sizeSm, fontWeight: '600' },
+    transitionalState: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+    transitionalText: { color: colors.fgSubtle, fontSize: typography.sizeSm },
+    openButton: { flex: 1, alignItems: 'flex-end' },
+    openButtonText: { color: colors.accent, fontSize: typography.sizeSm, fontWeight: '600' },
+    disabledText: { color: colors.fgSubtle },
+    deleteText: { color: colors.danger, fontSize: typography.sizeSm, fontWeight: '600' },
+    autoRestartRow: {
+      flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+      marginTop: spacing.sm, paddingTop: spacing.sm, borderTopColor: colors.borderMuted, borderTopWidth: 1,
+    },
+    autoRestartLabel: { color: colors.fgMuted, fontSize: typography.sizeSm, flex: 1, marginRight: spacing.sm },
+  });
   const [codespaces, setCodespaces] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -351,52 +402,3 @@ export default function CodespacesScreen({ navigation }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
-  centerBox: { alignItems: 'center', marginTop: spacing.xl, paddingHorizontal: spacing.lg },
-  errorText: { color: colors.danger, textAlign: 'center' },
-  errorHint: { color: colors.fgSubtle, fontSize: typography.sizeSm, textAlign: 'center', marginTop: spacing.sm },
-  retryButton: { marginTop: spacing.md, padding: spacing.sm },
-  retryText: { color: colors.accent },
-  emptyText: { color: colors.fgSubtle, textAlign: 'center', lineHeight: 20 },
-  createButton: {
-    backgroundColor: colors.accentEmphasis, borderRadius: 10, paddingVertical: spacing.md,
-    alignItems: 'center', marginBottom: spacing.md,
-  },
-  createButtonText: { color: '#fff', fontWeight: '700', fontSize: typography.sizeMd },
-  infoCard: {
-    backgroundColor: 'rgba(88,166,255,0.08)', borderColor: colors.accent, borderWidth: 1,
-    borderRadius: 8, padding: spacing.sm, marginBottom: spacing.md,
-  },
-  infoCardText: { color: colors.fgMuted, fontSize: typography.sizeSm, lineHeight: 18 },
-  card: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  headerRow: { flexDirection: 'row', alignItems: 'center' },
-  stateDot: { width: 8, height: 8, borderRadius: 4, marginRight: spacing.sm },
-  repoName: { color: colors.fgMuted, fontSize: typography.sizeSm, flex: 1 },
-  displayName: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '700', marginTop: 4 },
-  meta: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: 4 },
-  metaSubtle: { color: colors.fgSubtle, fontSize: 11, marginTop: 2 },
-  uncommittedWarning: { color: colors.warning, fontSize: typography.sizeSm },
-  uncommittedRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: spacing.sm },
-  actionsRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.md, flexWrap: 'wrap' },
-  startButton: { backgroundColor: colors.successEmphasis, borderRadius: 6, paddingHorizontal: spacing.md, paddingVertical: spacing.xs },
-  startButtonText: { color: '#fff', fontSize: typography.sizeSm, fontWeight: '600' },
-  stopButton: { borderColor: colors.warning, borderWidth: 1, borderRadius: 6, paddingHorizontal: spacing.md, paddingVertical: spacing.xs },
-  stopButtonText: { color: colors.warning, fontSize: typography.sizeSm, fontWeight: '600' },
-  transitionalState: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
-  transitionalText: { color: colors.fgSubtle, fontSize: typography.sizeSm },
-  openButton: { flex: 1, alignItems: 'flex-end' },
-  openButtonText: { color: colors.accent, fontSize: typography.sizeSm, fontWeight: '600' },
-  disabledText: { color: colors.fgSubtle },
-  deleteText: { color: colors.danger, fontSize: typography.sizeSm, fontWeight: '600' },
-  autoRestartRow: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    marginTop: spacing.sm, paddingTop: spacing.sm, borderTopColor: colors.borderMuted, borderTopWidth: 1,
-  },
-  autoRestartLabel: { color: colors.fgMuted, fontSize: typography.sizeSm, flex: 1, marginRight: spacing.sm },
-});

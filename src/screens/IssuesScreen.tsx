@@ -10,9 +10,29 @@ import {
   Linking,
 } from 'react-native';
 import { listMyIssues } from '../services/github';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 export default function IssuesScreen() {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
+    errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
+    retryButton: { marginTop: spacing.md, padding: spacing.sm },
+    retryText: { color: colors.accent },
+    emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
+    issueCard: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    issueTitle: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '600' },
+    issueMeta: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: 4 },
+    labelRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs, marginTop: spacing.sm },
+    labelChip: { paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: 12 },
+    labelText: { fontSize: 11, fontWeight: '600' },
+  });
   const [issues, setIssues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -89,21 +109,3 @@ export default function IssuesScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
-  errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
-  retryButton: { marginTop: spacing.md, padding: spacing.sm },
-  retryText: { color: colors.accent },
-  emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
-  issueCard: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  issueTitle: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '600' },
-  issueMeta: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: 4 },
-  labelRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs, marginTop: spacing.sm },
-  labelChip: { paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: 12 },
-  labelText: { fontSize: 11, fontWeight: '600' },
-});

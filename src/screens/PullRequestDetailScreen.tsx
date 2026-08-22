@@ -21,9 +21,89 @@ import {
   mergePullRequest,
 } from '../services/github';
 import PatchView from '../components/PatchView';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 export default function PullRequestDetailScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    flex: { flex: 1 },
+    centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
+    errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
+    retryButton: { marginTop: spacing.md, padding: spacing.sm },
+    retryText: { color: colors.accent },
+    headerCard: { maxHeight: 260, borderBottomColor: colors.border, borderBottomWidth: 1 },
+    prTitle: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700' },
+    prMeta: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: 4 },
+    statsRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
+    additionsText: { color: colors.success, fontFamily: typography.mono, fontSize: typography.sizeSm, fontWeight: '600' },
+    deletionsText: { color: colors.danger, fontFamily: typography.mono, fontSize: typography.sizeSm, fontWeight: '600' },
+    filesChangedText: { color: colors.fgSubtle, fontSize: typography.sizeSm },
+    prBody: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: spacing.sm, lineHeight: 18 },
+    actionRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
+    reviewButton: { flex: 1, padding: spacing.sm, alignItems: 'center', borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
+    reviewButtonText: { color: colors.accent, fontWeight: '600' },
+    mergeButton: { flex: 1, padding: spacing.sm, alignItems: 'center', borderRadius: 8, backgroundColor: colors.successEmphasis },
+    mergeButtonText: { color: '#fff', fontWeight: '600' },
+    tabBar: { flexDirection: 'row', borderBottomColor: colors.border, borderBottomWidth: 1 },
+    tabButton: { flex: 1, padding: spacing.md, alignItems: 'center' },
+    tabButtonActive: { borderBottomColor: colors.accent, borderBottomWidth: 2 },
+    tabButtonText: { color: colors.fgDefault, fontSize: typography.sizeSm },
+    emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
+    fileCard: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, marginBottom: spacing.sm, overflow: 'hidden',
+    },
+    fileHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.md },
+    filePath: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: typography.sizeSm, flex: 1 },
+    fileStats: { fontSize: typography.sizeSm, marginLeft: spacing.sm },
+    patchContainer: { maxHeight: 300, borderTopColor: colors.border, borderTopWidth: 1 },
+    reviewCard: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    reviewHeaderRow: { flexDirection: 'row', justifyContent: 'space-between' },
+    reviewAuthor: { color: colors.fgDefault, fontWeight: '600' },
+    reviewState: { color: colors.fgMuted, fontSize: typography.sizeSm, fontWeight: '600' },
+    reviewStateApproved: { color: colors.success },
+    reviewStateChanges: { color: colors.danger },
+    reviewBody: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: spacing.xs },
+    commentCard: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    commentAuthor: { color: colors.fgDefault, fontWeight: '600', fontSize: typography.sizeSm },
+    commentBody: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: spacing.xs },
+    commentInputBar: { flexDirection: 'row', padding: spacing.sm, borderTopColor: colors.border, borderTopWidth: 1, gap: spacing.sm },
+    commentInput: {
+      flex: 1, backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 8, padding: spacing.sm, color: colors.fgDefault, maxHeight: 100,
+    },
+    postButton: { backgroundColor: colors.accentEmphasis, borderRadius: 8, paddingHorizontal: spacing.md, justifyContent: 'center' },
+    postButtonText: { color: '#fff', fontWeight: '600' },
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
+    modalCard: {
+      backgroundColor: colors.bgSubtle, borderTopLeftRadius: 16, borderTopRightRadius: 16,
+      padding: spacing.lg, borderColor: colors.border, borderWidth: 1,
+    },
+    modalTitle: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700', marginBottom: spacing.md },
+    reviewEventRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md, flexWrap: 'wrap' },
+    reviewEventChip: { borderColor: colors.border, borderWidth: 1, borderRadius: 20, paddingHorizontal: spacing.md, paddingVertical: spacing.xs },
+    reviewEventChipActive: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
+    reviewEventChipText: { color: colors.fgMuted, fontSize: typography.sizeSm },
+    reviewEventChipTextActive: { color: '#fff', fontWeight: '600' },
+    modalTextArea: {
+      backgroundColor: colors.bgInset, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 8, color: colors.fgDefault, padding: spacing.md, minHeight: 80, textAlignVertical: 'top',
+    },
+    modalActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
+    modalCancelButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
+    modalCancelText: { color: colors.fgMuted },
+    modalSaveButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, backgroundColor: colors.successEmphasis },
+    modalSaveText: { color: '#fff', fontWeight: '600' },
+  });
   const { owner, repo, pullNumber } = route.params;
 
   const [pr, setPr] = useState(null);
@@ -336,81 +416,3 @@ export default function PullRequestDetailScreen({ route, navigation }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  flex: { flex: 1 },
-  centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
-  errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
-  retryButton: { marginTop: spacing.md, padding: spacing.sm },
-  retryText: { color: colors.accent },
-  headerCard: { maxHeight: 260, borderBottomColor: colors.border, borderBottomWidth: 1 },
-  prTitle: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700' },
-  prMeta: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: 4 },
-  statsRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm },
-  additionsText: { color: colors.success, fontFamily: typography.mono, fontSize: typography.sizeSm, fontWeight: '600' },
-  deletionsText: { color: colors.danger, fontFamily: typography.mono, fontSize: typography.sizeSm, fontWeight: '600' },
-  filesChangedText: { color: colors.fgSubtle, fontSize: typography.sizeSm },
-  prBody: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: spacing.sm, lineHeight: 18 },
-  actionRow: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
-  reviewButton: { flex: 1, padding: spacing.sm, alignItems: 'center', borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
-  reviewButtonText: { color: colors.accent, fontWeight: '600' },
-  mergeButton: { flex: 1, padding: spacing.sm, alignItems: 'center', borderRadius: 8, backgroundColor: colors.successEmphasis },
-  mergeButtonText: { color: '#fff', fontWeight: '600' },
-  tabBar: { flexDirection: 'row', borderBottomColor: colors.border, borderBottomWidth: 1 },
-  tabButton: { flex: 1, padding: spacing.md, alignItems: 'center' },
-  tabButtonActive: { borderBottomColor: colors.accent, borderBottomWidth: 2 },
-  tabButtonText: { color: colors.fgDefault, fontSize: typography.sizeSm },
-  emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
-  fileCard: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, marginBottom: spacing.sm, overflow: 'hidden',
-  },
-  fileHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.md },
-  filePath: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: typography.sizeSm, flex: 1 },
-  fileStats: { fontSize: typography.sizeSm, marginLeft: spacing.sm },
-  patchContainer: { maxHeight: 300, borderTopColor: colors.border, borderTopWidth: 1 },
-  reviewCard: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  reviewHeaderRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  reviewAuthor: { color: colors.fgDefault, fontWeight: '600' },
-  reviewState: { color: colors.fgMuted, fontSize: typography.sizeSm, fontWeight: '600' },
-  reviewStateApproved: { color: colors.success },
-  reviewStateChanges: { color: colors.danger },
-  reviewBody: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: spacing.xs },
-  commentCard: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  commentAuthor: { color: colors.fgDefault, fontWeight: '600', fontSize: typography.sizeSm },
-  commentBody: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: spacing.xs },
-  commentInputBar: { flexDirection: 'row', padding: spacing.sm, borderTopColor: colors.border, borderTopWidth: 1, gap: spacing.sm },
-  commentInput: {
-    flex: 1, backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 8, padding: spacing.sm, color: colors.fgDefault, maxHeight: 100,
-  },
-  postButton: { backgroundColor: colors.accentEmphasis, borderRadius: 8, paddingHorizontal: spacing.md, justifyContent: 'center' },
-  postButtonText: { color: '#fff', fontWeight: '600' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
-  modalCard: {
-    backgroundColor: colors.bgSubtle, borderTopLeftRadius: 16, borderTopRightRadius: 16,
-    padding: spacing.lg, borderColor: colors.border, borderWidth: 1,
-  },
-  modalTitle: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700', marginBottom: spacing.md },
-  reviewEventRow: { flexDirection: 'row', gap: spacing.sm, marginBottom: spacing.md, flexWrap: 'wrap' },
-  reviewEventChip: { borderColor: colors.border, borderWidth: 1, borderRadius: 20, paddingHorizontal: spacing.md, paddingVertical: spacing.xs },
-  reviewEventChipActive: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
-  reviewEventChipText: { color: colors.fgMuted, fontSize: typography.sizeSm },
-  reviewEventChipTextActive: { color: '#fff', fontWeight: '600' },
-  modalTextArea: {
-    backgroundColor: colors.bgInset, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 8, color: colors.fgDefault, padding: spacing.md, minHeight: 80, textAlignVertical: 'top',
-  },
-  modalActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
-  modalCancelButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
-  modalCancelText: { color: colors.fgMuted },
-  modalSaveButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, backgroundColor: colors.successEmphasis },
-  modalSaveText: { color: '#fff', fontWeight: '600' },
-});

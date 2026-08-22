@@ -15,7 +15,8 @@ import * as FileSystem from 'expo-file-system/legacy';
 import { getFileContent, createOrUpdateFile } from '../services/github';
 import { useStaging } from '../context/StagingContext';
 import DiffView from '../components/DiffView';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 import { saveDraft, getDraft, clearDraft } from '../db/editorDrafts';
 import { createBackup } from '../db/fileBackups';
 import { checkBranchConflict } from '../services/repoSafety';
@@ -52,6 +53,37 @@ function guessLanguage(path) {
 }
 
 export default function FileEditorScreen({ route, navigation }: any) {
+  const { colors, scheme } = useTheme();
+
+  const styles = StyleSheet.create({
+    flex: { flex: 1, backgroundColor: colors.bgDefault },
+    centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
+    errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
+    retryButton: { marginTop: spacing.md, padding: spacing.sm },
+    retryText: { color: colors.accent },
+    headerButtons: { flexDirection: 'row', alignItems: 'center' },
+    headerButtonText: { fontSize: typography.sizeSm, fontWeight: '600', color: colors.fgDefault },
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
+    reviewCard: {
+      backgroundColor: colors.bgSubtle,
+      borderTopLeftRadius: 16,
+      borderTopRightRadius: 16,
+      padding: spacing.lg,
+      borderColor: colors.border,
+      borderWidth: 1,
+      maxHeight: '80%',
+    },
+    reviewTitle: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700' },
+    reviewPath: { color: colors.fgMuted, fontFamily: typography.mono, fontSize: typography.sizeSm, marginTop: 2, marginBottom: spacing.md },
+    diffContainer: { maxHeight: 350, borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
+    reviewActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
+    cancelButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
+    cancelButtonText: { color: colors.fgMuted },
+    stageButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, backgroundColor: colors.warningEmphasis },
+    stageButtonText: { color: '#fff', fontWeight: '600', fontSize: typography.sizeSm },
+    commitButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, backgroundColor: colors.successEmphasis },
+    commitButtonText: { color: '#fff', fontWeight: '600', fontSize: typography.sizeSm },
+  });
   const { owner, repo, path, sha: initialSha, branch } = route.params;
   const { stageFile, isFileStaged } = useStaging();
   const [loading, setLoading] = useState(true);
@@ -274,7 +306,7 @@ export default function FileEditorScreen({ route, navigation }: any) {
           editorUri={IOS_EDITOR_URI}
           content={content}
           language={guessLanguage(path)}
-          theme="darcula"
+          theme={scheme === 'light' ? 'idea' : 'darcula'}
           viewport={viewport}
           onContentUpdate={(text) => {
             currentContentRef.current = text;
@@ -325,33 +357,3 @@ export default function FileEditorScreen({ route, navigation }: any) {
     </KeyboardAvoidingView>
   );
 }
-
-const styles = StyleSheet.create({
-  flex: { flex: 1, backgroundColor: colors.bgDefault },
-  centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
-  errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
-  retryButton: { marginTop: spacing.md, padding: spacing.sm },
-  retryText: { color: colors.accent },
-  headerButtons: { flexDirection: 'row', alignItems: 'center' },
-  headerButtonText: { fontSize: typography.sizeSm, fontWeight: '600', color: colors.fgDefault },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
-  reviewCard: {
-    backgroundColor: colors.bgSubtle,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    padding: spacing.lg,
-    borderColor: colors.border,
-    borderWidth: 1,
-    maxHeight: '80%',
-  },
-  reviewTitle: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700' },
-  reviewPath: { color: colors.fgMuted, fontFamily: typography.mono, fontSize: typography.sizeSm, marginTop: 2, marginBottom: spacing.md },
-  diffContainer: { maxHeight: 350, borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
-  reviewActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
-  cancelButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
-  cancelButtonText: { color: colors.fgMuted },
-  stageButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, backgroundColor: colors.warningEmphasis },
-  stageButtonText: { color: '#fff', fontWeight: '600', fontSize: typography.sizeSm },
-  commitButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, backgroundColor: colors.successEmphasis },
-  commitButtonText: { color: '#fff', fontWeight: '600', fontSize: typography.sizeSm },
-});

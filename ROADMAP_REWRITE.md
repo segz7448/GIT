@@ -235,18 +235,53 @@ via `grep` - 15 files total):**
   retints correctly
 - `src/screens/SettingsScreen.tsx` - hosts the picker, fully converted
 
-**Explicitly NOT yet theme-reactive** (still hardcoded to the dark
-palette via `theme.js`'s static `colors` export): the other 36 screens'
-*own* custom-styled content - text, backgrounds, and layout elements
-each screen defines directly in its own module-scope `StyleSheet.create`
-rather than composing the shared UI kit. Toggling the theme will
-correctly reskin navigation, tab bar, side menu, all buttons/cards/
-inputs/badges/icons everywhere, and the Settings screen itself - but a
-screen's own bespoke `<Text style={{color: colors.fgMuted}}>`-style
-content will still render in the dark palette's colors regardless of
-the selected theme, until each screen is individually converted the
-same way (a bounded, mechanical-per-file task, but a real one - not
-done in this pass).
+## Post-Phase-7 revision 4: real bug reports from screenshots
+
+Four issues reported with screenshots, all real, all fixed:
+
+1. **Bottom tab bar overlapping content** (Terminal hint text, repo list
+   items hidden underneath the tab labels). Root cause:
+   `tabBarStyle: { position: 'absolute' }` in `App.js` floated the tab
+   bar over content without React Navigation reserving its height in
+   the layout. Fixed by removing the absolute positioning - the glass
+   BlurView background stays, it just docks normally now.
+2. **Light theme showing dark glass cards** - the real scope gap
+   flagged in revision 2 became visible in a screenshot (`RepoListScreen`
+   rendering dark cards on a white background). Converted all 34
+   remaining screens plus 5 more shared components
+   (`BranchManagerModal`, `FileActionsModal`, `RateLimitIndicator`,
+   `RecoveryBanner`, `VersionHistoryModal`, `PatchView`, `DiffView`,
+   `TerminalKeyRow`) to read colors from `useTheme()` at render time,
+   using a scaled-up version of the "move `StyleSheet.create` inside
+   the component" pattern. Found and fixed two real bugs the automated
+   pass introduced: `ProfileScreen`'s `DetailRow` and `SecurityScreen`'s
+   `AddAccountModal` are helper components declared *outside* the main
+   screen function, so they couldn't see the parent's hook-scoped
+   `colors`/`styles` - both given their own `useTheme()` calls.
+   `ErrorBoundary.js` deliberately kept static/unthemed colors, since
+   it's a crash-safety net and many production apps intentionally keep
+   that UI independent of app context in case the crash originated
+   there.
+   Went further than the UI shell per explicit direction ("even the
+   codebase terminal, not how you do your own"): `TerminalScreen`/
+   `TerminalKeyRow` no longer force pure-black regardless of theme;
+   `ansiParser.js` now has separate dark/light ANSI color palettes
+   (real terminal emulators do this too - a fixed dark-tuned palette
+   would make ANSI white text invisible on a light background) with
+   `AnsiText`/`TerminalScreen` passing the resolved scheme through; the
+   code editor (`FileEditorScreen`) swaps CodeMirror's `darcula` theme
+   for `idea` (its JetBrains light counterpart) based on scheme.
+3. **Blank native splash screen** - `app.json` had no splash
+   configuration at all, so the native launch screen was blank; what
+   was reported as "showing" in the screenshot was almost certainly the
+   phone's own screen-protector alignment grid becoming visible through
+   a blank/reflective screen during the flash photo. Generated a
+   branded splash image (gradient terminal-glyph badge + "GIT MANAGER"
+   wordmark + "Created to manage GitHub" + "BY ZAO INC." credit, via
+   PIL) and wired it in through `expo-splash-screen`. Also found and
+   fixed `userInterfaceStyle: "dark"` hardcoded in `app.json`, which
+   was actively fighting the light/system theme feature at the native
+   level - changed to `"automatic"`.
 
 ## Post-Phase-7 revision 3: CI build fixes (from real GitHub Actions logs)
 

@@ -9,9 +9,37 @@ import {
   FlatList,
 } from 'react-native';
 import { searchCode } from '../services/github';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 export default function CodeSearchScreen({ navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    searchBar: { flexDirection: 'row', gap: spacing.sm, padding: spacing.md },
+    input: {
+      flex: 1, backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 8, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, color: colors.fgDefault,
+    },
+    searchButton: { backgroundColor: colors.accentEmphasis, borderRadius: 8, paddingHorizontal: spacing.lg, justifyContent: 'center' },
+    searchButtonText: { color: '#fff', fontWeight: '600' },
+    scopeRow: { flexDirection: 'row', gap: spacing.sm, paddingHorizontal: spacing.md },
+    scopeInput: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 8, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, color: colors.fgDefault, fontSize: typography.sizeSm,
+    },
+    hint: { color: colors.fgSubtle, fontSize: typography.sizeSm, paddingHorizontal: spacing.md, marginTop: spacing.xs },
+    errorText: { color: colors.warning, fontSize: typography.sizeSm, paddingHorizontal: spacing.md, marginTop: spacing.sm },
+    countText: { color: colors.fgMuted, fontSize: typography.sizeSm, paddingHorizontal: spacing.md, marginTop: spacing.sm },
+    resultCard: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    resultPath: { color: colors.accent, fontFamily: typography.mono, fontSize: typography.sizeSm },
+    resultRepo: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: 2 },
+    emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
+  });
   const [query, setQuery] = useState('');
   const [scopeOwner, setScopeOwner] = useState('');
   const [scopeRepo, setScopeRepo] = useState('');
@@ -122,29 +150,3 @@ export default function CodeSearchScreen({ navigation }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  searchBar: { flexDirection: 'row', gap: spacing.sm, padding: spacing.md },
-  input: {
-    flex: 1, backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 8, paddingHorizontal: spacing.md, paddingVertical: spacing.sm, color: colors.fgDefault,
-  },
-  searchButton: { backgroundColor: colors.accentEmphasis, borderRadius: 8, paddingHorizontal: spacing.lg, justifyContent: 'center' },
-  searchButtonText: { color: '#fff', fontWeight: '600' },
-  scopeRow: { flexDirection: 'row', gap: spacing.sm, paddingHorizontal: spacing.md },
-  scopeInput: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 8, paddingHorizontal: spacing.md, paddingVertical: spacing.xs, color: colors.fgDefault, fontSize: typography.sizeSm,
-  },
-  hint: { color: colors.fgSubtle, fontSize: typography.sizeSm, paddingHorizontal: spacing.md, marginTop: spacing.xs },
-  errorText: { color: colors.warning, fontSize: typography.sizeSm, paddingHorizontal: spacing.md, marginTop: spacing.sm },
-  countText: { color: colors.fgMuted, fontSize: typography.sizeSm, paddingHorizontal: spacing.md, marginTop: spacing.sm },
-  resultCard: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  resultPath: { color: colors.accent, fontFamily: typography.mono, fontSize: typography.sizeSm },
-  resultRepo: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: 2 },
-  emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
-});

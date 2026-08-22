@@ -1,7 +1,8 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, BackHandler, Linking } from 'react-native';
 import { WebView } from 'react-native-webview';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 // VS Code Web (what a codespace's web_url actually opens) is a full
 // desktop-oriented editor UI - sidebar, tabs, panel, command palette -
@@ -27,6 +28,28 @@ const MOBILE_VIEWPORT_JS = `
 `;
 
 export default function CodespaceWebViewScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    toolbar: {
+      flexDirection: 'row', alignItems: 'center', padding: spacing.sm,
+      borderBottomColor: colors.border, borderBottomWidth: 1, backgroundColor: colors.bgSubtle,
+    },
+    toolbarButton: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs },
+    toolbarButtonText: { color: colors.accent, fontSize: typography.sizeSm, fontWeight: '600' },
+    toolbarHint: { flex: 1, color: colors.fgSubtle, fontSize: 11, textAlign: 'center' },
+    webview: { flex: 1, backgroundColor: colors.bgDefault },
+    centerContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
+    loadingText: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: spacing.md },
+    loadingOverlay: {
+      position: 'absolute', top: 44, left: 0, right: 0, alignItems: 'center', paddingTop: spacing.md,
+    },
+    errorText: { color: colors.danger, textAlign: 'center', marginBottom: spacing.md },
+    retryButton: { backgroundColor: colors.accentEmphasis, borderRadius: 8, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
+    retryButtonText: { color: '#fff', fontWeight: '600' },
+    fallbackLink: { color: colors.accent, fontSize: typography.sizeSm },
+  });
   const { webUrl, displayName } = route.params;
   const webViewRef = useRef(null);
   const [canGoBack, setCanGoBack] = useState(false);
@@ -111,24 +134,3 @@ export default function CodespaceWebViewScreen({ route, navigation }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  toolbar: {
-    flexDirection: 'row', alignItems: 'center', padding: spacing.sm,
-    borderBottomColor: colors.border, borderBottomWidth: 1, backgroundColor: colors.bgSubtle,
-  },
-  toolbarButton: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs },
-  toolbarButtonText: { color: colors.accent, fontSize: typography.sizeSm, fontWeight: '600' },
-  toolbarHint: { flex: 1, color: colors.fgSubtle, fontSize: 11, textAlign: 'center' },
-  webview: { flex: 1, backgroundColor: colors.bgDefault },
-  centerContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
-  loadingText: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: spacing.md },
-  loadingOverlay: {
-    position: 'absolute', top: 44, left: 0, right: 0, alignItems: 'center', paddingTop: spacing.md,
-  },
-  errorText: { color: colors.danger, textAlign: 'center', marginBottom: spacing.md },
-  retryButton: { backgroundColor: colors.accentEmphasis, borderRadius: 8, paddingHorizontal: spacing.lg, paddingVertical: spacing.sm },
-  retryButtonText: { color: '#fff', fontWeight: '600' },
-  fallbackLink: { color: colors.accent, fontSize: typography.sizeSm },
-});

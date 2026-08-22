@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, FlatList, TouchableOpacity, StyleSheet, TextInput, Alert } from 'react-native';
 import { getLocalClone, deleteLocalClone } from '../db/localClones';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 function formatBytes(bytes) {
   if (!bytes) return '0B';
@@ -11,6 +12,32 @@ function formatBytes(bytes) {
 }
 
 export default function LocalCloneScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
+    emptyText: { color: colors.fgSubtle, textAlign: 'center' },
+    header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.md, borderBottomColor: colors.border, borderBottomWidth: 1 },
+    headerText: { color: colors.fgSubtle, fontSize: typography.sizeSm, flex: 1 },
+    deleteText: { color: colors.danger, fontSize: typography.sizeSm, fontWeight: '600' },
+    searchInput: {
+      marginHorizontal: spacing.md, marginTop: spacing.sm, color: colors.fgDefault,
+      borderColor: colors.border, borderWidth: 1, borderRadius: 8, paddingHorizontal: spacing.sm, paddingVertical: spacing.sm,
+    },
+    fileRow: {
+      flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+      paddingVertical: spacing.sm, borderBottomColor: colors.borderMuted, borderBottomWidth: 1,
+    },
+    filePath: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: typography.sizeSm, flex: 1 },
+    fileSize: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginLeft: spacing.sm },
+    backRow: { padding: spacing.md },
+    backText: { color: colors.accent, fontWeight: '600' },
+    fileTitle: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: typography.sizeSm, paddingHorizontal: spacing.md, paddingBottom: spacing.sm },
+    codeLine: { flexDirection: 'row' },
+    lineNumber: { color: colors.fgSubtle, fontFamily: typography.mono, fontSize: 11, width: 36, textAlign: 'right', marginRight: spacing.sm },
+    lineContent: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: 12, flex: 1 },
+  });
   const { owner, repo, branch } = route.params;
   const [clone, setClone] = useState(null);
   const [search, setSearch] = useState('');
@@ -114,28 +141,3 @@ export default function LocalCloneScreen({ route, navigation }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
-  emptyText: { color: colors.fgSubtle, textAlign: 'center' },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.md, borderBottomColor: colors.border, borderBottomWidth: 1 },
-  headerText: { color: colors.fgSubtle, fontSize: typography.sizeSm, flex: 1 },
-  deleteText: { color: colors.danger, fontSize: typography.sizeSm, fontWeight: '600' },
-  searchInput: {
-    marginHorizontal: spacing.md, marginTop: spacing.sm, color: colors.fgDefault,
-    borderColor: colors.border, borderWidth: 1, borderRadius: 8, paddingHorizontal: spacing.sm, paddingVertical: spacing.sm,
-  },
-  fileRow: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingVertical: spacing.sm, borderBottomColor: colors.borderMuted, borderBottomWidth: 1,
-  },
-  filePath: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: typography.sizeSm, flex: 1 },
-  fileSize: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginLeft: spacing.sm },
-  backRow: { padding: spacing.md },
-  backText: { color: colors.accent, fontWeight: '600' },
-  fileTitle: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: typography.sizeSm, paddingHorizontal: spacing.md, paddingBottom: spacing.sm },
-  codeLine: { flexDirection: 'row' },
-  lineNumber: { color: colors.fgSubtle, fontFamily: typography.mono, fontSize: 11, width: 36, textAlign: 'right', marginRight: spacing.sm },
-  lineContent: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: 12, flex: 1 },
-});

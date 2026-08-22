@@ -7,8 +7,8 @@ import { parseAnsi } from '../utils/ansiParser';
  * the way a real terminal would show colored git/test/linter output
  * instead of raw `\x1b[32m` bytes.
  */
-export default function AnsiText({ children, style, dimColor = '#8b949e' }) {
-  const segments = parseAnsi(children || '');
+export default function AnsiText({ children, style, dimColor = '#8b949e', scheme = 'dark' }) {
+  const segments = parseAnsi(children || '', scheme);
   if (segments.length === 0) return null;
 
   return (

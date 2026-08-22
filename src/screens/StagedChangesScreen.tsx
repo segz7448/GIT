@@ -11,12 +11,50 @@ import {
 import { useStaging } from '../context/StagingContext';
 import { commitMultipleFiles, getFileContent } from '../services/github';
 import DiffView from '../components/DiffView';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 import PremiumIcon from '../components/icons/PremiumIcon';
 import { createAutoBackupBranch } from '../services/repoSafety';
 import { createBackup } from '../db/fileBackups';
 
 export default function StagedChangesScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
+    emptyText: { color: colors.fgSubtle, fontSize: typography.sizeMd, textAlign: 'center' },
+    emptySubtext: { color: colors.fgSubtle, fontSize: typography.sizeSm, textAlign: 'center', marginTop: spacing.sm, lineHeight: 18 },
+    fileCard: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, marginBottom: spacing.sm, overflow: 'hidden',
+    },
+    fileHeader: {
+      flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.md,
+    },
+    filePath: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: typography.sizeSm, flex: 1 },
+    unstageButton: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs },
+    unstageButtonText: { color: colors.danger, fontSize: typography.sizeSm },
+    diffContainer: { maxHeight: 300, borderTopColor: colors.border, borderTopWidth: 1 },
+    commitBar: { padding: spacing.md, borderTopColor: colors.border, borderTopWidth: 1 },
+    backupToggleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.sm },
+    checkbox: {
+      width: 20,
+      height: 20,
+      borderRadius: 4,
+      borderWidth: 1.5,
+      borderColor: colors.border,
+      marginRight: spacing.sm,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    checkboxChecked: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
+    checkboxTick: { color: '#fff', fontSize: 13, fontWeight: '700' },
+    backupToggleText: { color: colors.fgMuted, fontSize: typography.sizeSm, flex: 1 },
+    commitButton: { backgroundColor: colors.successEmphasis, borderRadius: 10, padding: spacing.md, alignItems: 'center' },
+    commitButtonDisabled: { opacity: 0.6 },
+    commitButtonText: { color: '#fff', fontWeight: '700', fontSize: typography.sizeMd },
+  });
   const { owner, repo, branch } = route.params;
   const { getStagedForRepo, unstageFile, clearStaged } = useStaging();
   const [expandedPath, setExpandedPath] = useState(null);
@@ -213,39 +251,3 @@ export default function StagedChangesScreen({ route, navigation }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center', padding: spacing.xl },
-  emptyText: { color: colors.fgSubtle, fontSize: typography.sizeMd, textAlign: 'center' },
-  emptySubtext: { color: colors.fgSubtle, fontSize: typography.sizeSm, textAlign: 'center', marginTop: spacing.sm, lineHeight: 18 },
-  fileCard: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, marginBottom: spacing.sm, overflow: 'hidden',
-  },
-  fileHeader: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: spacing.md,
-  },
-  filePath: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: typography.sizeSm, flex: 1 },
-  unstageButton: { paddingHorizontal: spacing.sm, paddingVertical: spacing.xs },
-  unstageButtonText: { color: colors.danger, fontSize: typography.sizeSm },
-  diffContainer: { maxHeight: 300, borderTopColor: colors.border, borderTopWidth: 1 },
-  commitBar: { padding: spacing.md, borderTopColor: colors.border, borderTopWidth: 1 },
-  backupToggleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.sm },
-  checkbox: {
-    width: 20,
-    height: 20,
-    borderRadius: 4,
-    borderWidth: 1.5,
-    borderColor: colors.border,
-    marginRight: spacing.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxChecked: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
-  checkboxTick: { color: '#fff', fontSize: 13, fontWeight: '700' },
-  backupToggleText: { color: colors.fgMuted, fontSize: typography.sizeSm, flex: 1 },
-  commitButton: { backgroundColor: colors.successEmphasis, borderRadius: 10, padding: spacing.md, alignItems: 'center' },
-  commitButtonDisabled: { opacity: 0.6 },
-  commitButtonText: { color: '#fff', fontWeight: '700', fontSize: typography.sizeMd },
-});

@@ -12,9 +12,60 @@ import {
   Alert,
 } from 'react-native';
 import { listRepoIssues, createIssue } from '../services/github';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 export default function RepoIssuesScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    filterBar: { flexDirection: 'row', gap: spacing.sm, padding: spacing.md },
+    filterChip: {
+      borderColor: colors.border, borderWidth: 1, borderRadius: 20,
+      paddingHorizontal: spacing.md, paddingVertical: spacing.xs,
+    },
+    filterChipActive: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
+    filterChipText: { color: colors.fgMuted, fontSize: typography.sizeSm },
+    filterChipTextActive: { color: '#fff', fontWeight: '600' },
+    centerBox: { alignItems: 'center', marginTop: spacing.xl },
+    errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
+    retryButton: { marginTop: spacing.md, padding: spacing.sm },
+    retryText: { color: colors.accent },
+    emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
+    issueCard: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    issueHeaderRow: { flexDirection: 'row', alignItems: 'center' },
+    stateDot: { width: 10, height: 10, borderRadius: 5, marginRight: spacing.sm },
+    stateDotOpen: { backgroundColor: colors.success },
+    stateDotClosed: { backgroundColor: colors.danger },
+    issueTitle: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '600', flex: 1 },
+    issueMeta: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: 4 },
+    labelRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs, marginTop: spacing.sm },
+    labelChip: { paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: 12 },
+    labelText: { fontSize: 11, fontWeight: '600' },
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
+    createCard: {
+      backgroundColor: colors.bgSubtle, borderRadius: 12, borderColor: colors.border, borderWidth: 1,
+      padding: spacing.lg, width: '90%',
+    },
+    modalTitle: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700', marginBottom: spacing.md },
+    titleInput: {
+      backgroundColor: colors.bgInset, borderColor: colors.border, borderWidth: 1, borderRadius: 8,
+      color: colors.fgDefault, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    bodyInput: {
+      backgroundColor: colors.bgInset, borderColor: colors.border, borderWidth: 1, borderRadius: 8,
+      color: colors.fgDefault, padding: spacing.md, minHeight: 100,
+    },
+    modalActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
+    cancelButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
+    cancelButtonText: { color: colors.fgMuted },
+    createButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, backgroundColor: colors.successEmphasis },
+    createButtonText: { color: '#fff', fontWeight: '600' },
+  });
   const { owner, repo } = route.params;
   const [issues, setIssues] = useState([]);
   const [state, setState] = useState('open');
@@ -174,52 +225,3 @@ export default function RepoIssuesScreen({ route, navigation }: any) {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  filterBar: { flexDirection: 'row', gap: spacing.sm, padding: spacing.md },
-  filterChip: {
-    borderColor: colors.border, borderWidth: 1, borderRadius: 20,
-    paddingHorizontal: spacing.md, paddingVertical: spacing.xs,
-  },
-  filterChipActive: { backgroundColor: colors.accentEmphasis, borderColor: colors.accentEmphasis },
-  filterChipText: { color: colors.fgMuted, fontSize: typography.sizeSm },
-  filterChipTextActive: { color: '#fff', fontWeight: '600' },
-  centerBox: { alignItems: 'center', marginTop: spacing.xl },
-  errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
-  retryButton: { marginTop: spacing.md, padding: spacing.sm },
-  retryText: { color: colors.accent },
-  emptyText: { color: colors.fgSubtle, textAlign: 'center', marginTop: spacing.xl },
-  issueCard: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  issueHeaderRow: { flexDirection: 'row', alignItems: 'center' },
-  stateDot: { width: 10, height: 10, borderRadius: 5, marginRight: spacing.sm },
-  stateDotOpen: { backgroundColor: colors.success },
-  stateDotClosed: { backgroundColor: colors.danger },
-  issueTitle: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '600', flex: 1 },
-  issueMeta: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: 4 },
-  labelRow: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.xs, marginTop: spacing.sm },
-  labelChip: { paddingHorizontal: spacing.sm, paddingVertical: 2, borderRadius: 12 },
-  labelText: { fontSize: 11, fontWeight: '600' },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
-  createCard: {
-    backgroundColor: colors.bgSubtle, borderRadius: 12, borderColor: colors.border, borderWidth: 1,
-    padding: spacing.lg, width: '90%',
-  },
-  modalTitle: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700', marginBottom: spacing.md },
-  titleInput: {
-    backgroundColor: colors.bgInset, borderColor: colors.border, borderWidth: 1, borderRadius: 8,
-    color: colors.fgDefault, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  bodyInput: {
-    backgroundColor: colors.bgInset, borderColor: colors.border, borderWidth: 1, borderRadius: 8,
-    color: colors.fgDefault, padding: spacing.md, minHeight: 100,
-  },
-  modalActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md },
-  cancelButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, borderColor: colors.border, borderWidth: 1 },
-  cancelButtonText: { color: colors.fgMuted },
-  createButton: { flex: 1, padding: spacing.md, alignItems: 'center', borderRadius: 8, backgroundColor: colors.successEmphasis },
-  createButtonText: { color: '#fff', fontWeight: '600' },
-});

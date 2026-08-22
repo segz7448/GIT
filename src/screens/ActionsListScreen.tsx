@@ -2,12 +2,26 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, RefreshControl } from 'react-native';
 import { listWorkflowRuns } from '../services/github';
 import { isRepoWatched, addRepoToWatchlist } from '../services/notifications';
-import { colors, spacing, typography, statusColors } from '../theme';
+import { spacing, typography, statusColors } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 import { Screen, Card, Button, IconButton, EmptyState } from '../components/ui';
 import PremiumIcon from '../components/icons/PremiumIcon';
 import { resolveGlyphName } from '../components/icons/legacyMap';
 
 export default function ActionsListScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    headerRight: { flexDirection: 'row', alignItems: 'center' },
+    runCard: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.sm },
+    statusIcon: { marginRight: spacing.md },
+    runInfo: { flex: 1 },
+    runName: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '600' },
+    runMeta: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: 2 },
+    runTime: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: 2 },
+    centerBox: { alignItems: 'center', marginTop: spacing.xl },
+    errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl, marginTop: spacing.sm },
+  });
   const { owner, repo } = route.params;
   const [runs, setRuns] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -178,15 +192,3 @@ function timeAgo(dateStr: string) {
   if (hours < 24) return `${hours}h ago`;
   return `${Math.floor(hours / 24)}d ago`;
 }
-
-const styles = StyleSheet.create({
-  headerRight: { flexDirection: 'row', alignItems: 'center' },
-  runCard: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.sm },
-  statusIcon: { marginRight: spacing.md },
-  runInfo: { flex: 1 },
-  runName: { color: colors.fgDefault, fontSize: typography.sizeMd, fontWeight: '600' },
-  runMeta: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: 2 },
-  runTime: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: 2 },
-  centerBox: { alignItems: 'center', marginTop: spacing.xl },
-  errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl, marginTop: spacing.sm },
-});

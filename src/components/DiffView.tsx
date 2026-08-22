@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { View, Text, ScrollView, StyleSheet, ViewStyle, ActivityIndicator } from 'react-native';
 import { diffLines as jsDiffLinesLib } from 'diff';
 import { spacing, typography } from '../theme';
-import { palette, glass } from '../theme/tokens';
+import { useTheme } from '../theme/ThemeContext';
 import { diffLines as nativeDiffLines, isNativeAccelAvailable, DiffHunk } from '../../modules/gitnative';
 
 type Row = { key: string; text: string; type: 'added' | 'removed' | 'context' };
@@ -80,6 +80,7 @@ function jsFallbackRows(oldText: string, newText: string): Row[] {
  * the rendered output is identical either way.
  */
 export default function DiffView({ oldText, newText, style }: DiffViewProps) {
+  const { palette, glass, scheme } = useTheme();
   const [rows, setRows] = useState<Row[] | null>(null);
   const requestId = useRef(0);
 
@@ -99,6 +100,32 @@ export default function DiffView({ oldText, newText, style }: DiffViewProps) {
       }
     })();
   }, [oldText, newText]);
+
+  const addedBg = scheme === 'light' ? 'rgba(26,127,55,0.12)' : 'rgba(49,224,164,0.15)';
+  const removedBg = scheme === 'light' ? 'rgba(207,34,46,0.1)' : 'rgba(255,107,122,0.15)';
+
+  const styles = StyleSheet.create({
+    container: { backgroundColor: glass.fill.thin },
+    loading: { alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.xl },
+    row: { flexDirection: 'row', paddingHorizontal: spacing.sm },
+    rowAdded: { backgroundColor: addedBg },
+    rowRemoved: { backgroundColor: removedBg },
+    gutter: {
+      width: 16,
+      color: palette.ink500,
+      fontFamily: typography.mono,
+      fontSize: 12,
+    },
+    lineText: {
+      color: palette.ink300,
+      fontFamily: typography.mono,
+      fontSize: 12,
+      lineHeight: 18,
+    },
+    lineTextAdded: { color: palette.mint },
+    lineTextRemoved: { color: palette.coral },
+    noChangesText: { color: palette.ink500, padding: spacing.md, fontStyle: 'italic' },
+  });
 
   if (rows === null) {
     return (
@@ -139,26 +166,3 @@ export default function DiffView({ oldText, newText, style }: DiffViewProps) {
 /** Exposed for the settings/debug screen so users can see whether the
  * native accelerator actually linked on their build. */
 export { isNativeAccelAvailable };
-
-const styles = StyleSheet.create({
-  container: { backgroundColor: glass.fill.thin },
-  loading: { alignItems: 'center', justifyContent: 'center', paddingVertical: spacing.xl },
-  row: { flexDirection: 'row', paddingHorizontal: spacing.sm },
-  rowAdded: { backgroundColor: 'rgba(49,224,164,0.15)' },
-  rowRemoved: { backgroundColor: 'rgba(255,107,122,0.15)' },
-  gutter: {
-    width: 16,
-    color: palette.ink500,
-    fontFamily: typography.mono,
-    fontSize: 12,
-  },
-  lineText: {
-    color: palette.ink300,
-    fontFamily: typography.mono,
-    fontSize: 12,
-    lineHeight: 18,
-  },
-  lineTextAdded: { color: palette.mint },
-  lineTextRemoved: { color: palette.coral },
-  noChangesText: { color: palette.ink500, padding: spacing.md, fontStyle: 'italic' },
-});

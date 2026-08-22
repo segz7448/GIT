@@ -13,12 +13,13 @@ import {
 import { listRepos, createRepo, listGitignoreTemplates, listLicenseTemplates } from '../services/github';
 import { useAuth } from '../context/AuthContext';
 import { spacing, typography } from '../theme';
-import { palette, glass, radius } from '../theme/tokens';
+import { useTheme } from '../theme/ThemeContext';
 import { Screen, Card, Input, Button, IconButton, Badge, EmptyState } from '../components/ui';
 import PremiumIcon from '../components/icons/PremiumIcon';
 
 export default function RepoListScreen({ navigation }: any) {
   useAuth();
+  const { palette, glass, radius } = useTheme();
   const [repos, setRepos] = useState<any[]>([]);
   const [filtered, setFiltered] = useState<any[]>([]);
   const [search, setSearch] = useState('');
@@ -135,6 +136,89 @@ export default function RepoListScreen({ navigation }: any) {
       setCreating(false);
     }
   };
+
+  // Defined inside the component (not at module scope) so it closes over
+  // the current theme's colors and recomputes whenever the theme changes -
+  // StyleSheet.create is just a plain function, not a hook, so this is
+  // safe; the only cost is recreating the style objects each render,
+  // which is negligible for a screen-level stylesheet.
+  const styles = StyleSheet.create({
+    topBar: {
+      flexDirection: 'row',
+      padding: spacing.md,
+      gap: spacing.sm,
+      borderBottomColor: glass.border,
+      borderBottomWidth: 1,
+      alignItems: 'center',
+    },
+    searchInput: { flex: 1 },
+    repoCard: { marginBottom: spacing.sm },
+    repoHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    repoName: { color: palette.azureBright, fontSize: typography.sizeLg, fontWeight: '700', flex: 1 },
+    repoDesc: { color: palette.ink300, marginTop: spacing.xs, fontSize: typography.sizeSm },
+    repoMeta: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.sm },
+    metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    langDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: palette.azure },
+    metaText: { color: palette.ink500, fontSize: typography.sizeSm },
+    centerBox: { alignItems: 'center', marginTop: spacing.xl },
+    errorText: { color: palette.coral, textAlign: 'center', paddingHorizontal: spacing.xl, marginTop: spacing.sm },
+    modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
+    modalCard: {
+      backgroundColor: palette.space700,
+      borderTopLeftRadius: radius.xl,
+      borderTopRightRadius: radius.xl,
+      padding: spacing.lg,
+      borderColor: glass.border,
+      borderWidth: 1,
+      maxHeight: '85%',
+    },
+    modalHandle: {
+      width: 40,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: glass.border,
+      alignSelf: 'center',
+      marginBottom: spacing.md,
+    },
+    modalTitle: { color: palette.ink100, fontSize: typography.sizeLg, fontWeight: '700', marginBottom: spacing.md },
+    modalInput: { marginBottom: spacing.md },
+    toggleRow: { marginBottom: spacing.md },
+    toggleContent: { flexDirection: 'row', alignItems: 'center' },
+    checkbox: {
+      width: 22,
+      height: 22,
+      borderRadius: 6,
+      borderWidth: 1.5,
+      borderColor: glass.border,
+      marginRight: spacing.md,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    checkboxChecked: { backgroundColor: palette.azure, borderColor: palette.azure },
+    toggleLabel: { color: palette.ink100, fontWeight: '600', fontSize: typography.sizeMd },
+    toggleSubtext: { color: palette.ink500, fontSize: typography.sizeSm, marginTop: 2 },
+    pickerRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: spacing.md,
+    },
+    pickerValueRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+    pickerValue: { color: palette.ink300, fontSize: typography.sizeSm },
+    modalActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm, marginBottom: spacing.md },
+    modalActionButton: { flex: 1 },
+    pickerCard: {
+      backgroundColor: palette.space700,
+      borderTopLeftRadius: radius.xl,
+      borderTopRightRadius: radius.xl,
+      padding: spacing.lg,
+      borderColor: glass.border,
+      borderWidth: 1,
+      maxHeight: '70%',
+    },
+    pickerOption: { marginBottom: spacing.sm },
+    pickerOptionText: { color: palette.ink100, fontSize: typography.sizeMd },
+  });
 
   const renderRepo = ({ item }: { item: any }) => (
     <Card
@@ -379,81 +463,3 @@ function timeAgo(dateStr: string) {
   if (months < 12) return `${months}mo ago`;
   return `${Math.floor(months / 12)}y ago`;
 }
-
-const styles = StyleSheet.create({
-  topBar: {
-    flexDirection: 'row',
-    padding: spacing.md,
-    gap: spacing.sm,
-    borderBottomColor: glass.border,
-    borderBottomWidth: 1,
-    alignItems: 'center',
-  },
-  searchInput: { flex: 1 },
-  repoCard: { marginBottom: spacing.sm },
-  repoHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  repoName: { color: palette.azureBright, fontSize: typography.sizeLg, fontWeight: '700', flex: 1 },
-  repoDesc: { color: palette.ink300, marginTop: spacing.xs, fontSize: typography.sizeSm },
-  repoMeta: { flexDirection: 'row', gap: spacing.md, marginTop: spacing.sm },
-  metaItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  langDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: palette.azure },
-  metaText: { color: palette.ink500, fontSize: typography.sizeSm },
-  centerBox: { alignItems: 'center', marginTop: spacing.xl },
-  errorText: { color: palette.coral, textAlign: 'center', paddingHorizontal: spacing.xl, marginTop: spacing.sm },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
-  modalCard: {
-    backgroundColor: palette.space700,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
-    padding: spacing.lg,
-    borderColor: glass.border,
-    borderWidth: 1,
-    maxHeight: '85%',
-  },
-  modalHandle: {
-    width: 40,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: glass.border,
-    alignSelf: 'center',
-    marginBottom: spacing.md,
-  },
-  modalTitle: { color: palette.ink100, fontSize: typography.sizeLg, fontWeight: '700', marginBottom: spacing.md },
-  modalInput: { marginBottom: spacing.md },
-  toggleRow: { marginBottom: spacing.md },
-  toggleContent: { flexDirection: 'row', alignItems: 'center' },
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderRadius: 6,
-    borderWidth: 1.5,
-    borderColor: glass.border,
-    marginRight: spacing.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxChecked: { backgroundColor: palette.azure, borderColor: palette.azure },
-  toggleLabel: { color: palette.ink100, fontWeight: '600', fontSize: typography.sizeMd },
-  toggleSubtext: { color: palette.ink500, fontSize: typography.sizeSm, marginTop: 2 },
-  pickerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: spacing.md,
-  },
-  pickerValueRow: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  pickerValue: { color: palette.ink300, fontSize: typography.sizeSm },
-  modalActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm, marginBottom: spacing.md },
-  modalActionButton: { flex: 1 },
-  pickerCard: {
-    backgroundColor: palette.space700,
-    borderTopLeftRadius: radius.xl,
-    borderTopRightRadius: radius.xl,
-    padding: spacing.lg,
-    borderColor: glass.border,
-    borderWidth: 1,
-    maxHeight: '70%',
-  },
-  pickerOption: { marginBottom: spacing.sm },
-  pickerOptionText: { color: palette.ink100, fontSize: typography.sizeMd },
-});

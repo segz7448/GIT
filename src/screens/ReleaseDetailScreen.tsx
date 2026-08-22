@@ -19,7 +19,8 @@ import {
   deleteReleaseAsset,
   getToken,
 } from '../services/github';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 import PremiumIcon from '../components/icons/PremiumIcon';
 
 function formatBytes(bytes) {
@@ -43,6 +44,34 @@ function guessMimeType(fileName) {
 }
 
 export default function ReleaseDetailScreen({ route, navigation }: any) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
+    errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
+    retryButton: { marginTop: spacing.md, padding: spacing.sm },
+    retryText: { color: colors.accent },
+    releaseName: { color: colors.fgDefault, fontSize: typography.sizeXl, fontWeight: '700' },
+    releaseMeta: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: 4 },
+    releaseBody: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: spacing.md, lineHeight: 18 },
+    sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.lg, marginBottom: spacing.sm },
+    sectionLabel: { color: colors.fgMuted, fontSize: typography.sizeSm, textTransform: 'uppercase' },
+    addLink: { color: colors.accent, fontSize: typography.sizeSm },
+    emptyText: { color: colors.fgSubtle, fontSize: typography.sizeSm },
+    assetCard: {
+      flexDirection: 'row', alignItems: 'center',
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    assetName: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: typography.sizeSm },
+    assetMeta: { color: colors.fgSubtle, fontSize: 11, marginTop: 2 },
+    downloadButton: { backgroundColor: colors.successEmphasis, borderRadius: 8, paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
+    downloadButtonText: { color: '#fff', fontWeight: '600', fontSize: typography.sizeSm },
+    deleteLink: { color: colors.danger, fontSize: typography.sizeMd },
+    deleteReleaseButton: { borderColor: colors.danger, borderWidth: 1, borderRadius: 8, padding: spacing.md, alignItems: 'center', marginTop: spacing.xl, marginBottom: spacing.xl },
+    deleteReleaseButtonText: { color: colors.danger, fontWeight: '600' },
+  });
   const { owner, repo, releaseId } = route.params;
   const [release, setRelease] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -271,30 +300,3 @@ export default function ReleaseDetailScreen({ route, navigation }: any) {
     </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
-  errorText: { color: colors.danger, textAlign: 'center', paddingHorizontal: spacing.xl },
-  retryButton: { marginTop: spacing.md, padding: spacing.sm },
-  retryText: { color: colors.accent },
-  releaseName: { color: colors.fgDefault, fontSize: typography.sizeXl, fontWeight: '700' },
-  releaseMeta: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: 4 },
-  releaseBody: { color: colors.fgMuted, fontSize: typography.sizeSm, marginTop: spacing.md, lineHeight: 18 },
-  sectionHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: spacing.lg, marginBottom: spacing.sm },
-  sectionLabel: { color: colors.fgMuted, fontSize: typography.sizeSm, textTransform: 'uppercase' },
-  addLink: { color: colors.accent, fontSize: typography.sizeSm },
-  emptyText: { color: colors.fgSubtle, fontSize: typography.sizeSm },
-  assetCard: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  assetName: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: typography.sizeSm },
-  assetMeta: { color: colors.fgSubtle, fontSize: 11, marginTop: 2 },
-  downloadButton: { backgroundColor: colors.successEmphasis, borderRadius: 8, paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
-  downloadButtonText: { color: '#fff', fontWeight: '600', fontSize: typography.sizeSm },
-  deleteLink: { color: colors.danger, fontSize: typography.sizeMd },
-  deleteReleaseButton: { borderColor: colors.danger, borderWidth: 1, borderRadius: 8, padding: spacing.md, alignItems: 'center', marginTop: spacing.xl, marginBottom: spacing.xl },
-  deleteReleaseButtonText: { color: colors.danger, fontWeight: '600' },
-});

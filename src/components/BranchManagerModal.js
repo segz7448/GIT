@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, FlatList, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { createBranch, deleteBranch } from '../services/github';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 /**
  * Branch switching, creation, and deletion in one place. Switching just
@@ -19,6 +20,38 @@ export default function BranchManagerModal({
   onSwitch,
   onBranchesChanged,
 }) {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
+    card: {
+      backgroundColor: colors.bgSubtle, borderTopLeftRadius: 16, borderTopRightRadius: 16,
+      padding: spacing.lg, borderColor: colors.border, borderWidth: 1, maxHeight: '75%',
+    },
+    headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
+    title: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700' },
+    closeText: { color: colors.accent, fontWeight: '600' },
+    newBranchButton: { paddingVertical: spacing.sm, marginBottom: spacing.sm },
+    newBranchButtonText: { color: colors.accent, fontWeight: '600', fontSize: typography.sizeSm },
+    createRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md },
+    input: {
+      flex: 1, color: colors.fgDefault, borderColor: colors.border, borderWidth: 1, borderRadius: 8,
+      paddingHorizontal: spacing.sm, paddingVertical: spacing.sm, fontFamily: typography.mono, fontSize: typography.sizeSm,
+    },
+    createConfirmButton: { backgroundColor: colors.successEmphasis, borderRadius: 8, paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
+    createConfirmText: { color: '#fff', fontWeight: '600', fontSize: typography.sizeSm },
+    cancelCreateButton: { paddingHorizontal: spacing.sm },
+    cancelCreateText: { color: colors.fgMuted, fontSize: typography.sizeSm },
+    branchRow: {
+      flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+      paddingVertical: spacing.md, borderBottomColor: colors.borderMuted, borderBottomWidth: 1,
+    },
+    branchNameTouch: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+    branchText: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: typography.sizeSm },
+    branchTextActive: { color: colors.accent, fontWeight: '700' },
+    defaultTag: { color: colors.fgSubtle, fontSize: 10, borderColor: colors.border, borderWidth: 1, borderRadius: 4, paddingHorizontal: 4 },
+    deleteText: { color: colors.danger, fontSize: typography.sizeSm },
+  });
   const [creating, setCreating] = useState(false);
   const [newBranchName, setNewBranchName] = useState('');
   const [showCreateInput, setShowCreateInput] = useState(false);
@@ -141,34 +174,3 @@ export default function BranchManagerModal({
     </Modal>
   );
 }
-
-const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'flex-end' },
-  card: {
-    backgroundColor: colors.bgSubtle, borderTopLeftRadius: 16, borderTopRightRadius: 16,
-    padding: spacing.lg, borderColor: colors.border, borderWidth: 1, maxHeight: '75%',
-  },
-  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: spacing.md },
-  title: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700' },
-  closeText: { color: colors.accent, fontWeight: '600' },
-  newBranchButton: { paddingVertical: spacing.sm, marginBottom: spacing.sm },
-  newBranchButtonText: { color: colors.accent, fontWeight: '600', fontSize: typography.sizeSm },
-  createRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.md },
-  input: {
-    flex: 1, color: colors.fgDefault, borderColor: colors.border, borderWidth: 1, borderRadius: 8,
-    paddingHorizontal: spacing.sm, paddingVertical: spacing.sm, fontFamily: typography.mono, fontSize: typography.sizeSm,
-  },
-  createConfirmButton: { backgroundColor: colors.successEmphasis, borderRadius: 8, paddingHorizontal: spacing.md, paddingVertical: spacing.sm },
-  createConfirmText: { color: '#fff', fontWeight: '600', fontSize: typography.sizeSm },
-  cancelCreateButton: { paddingHorizontal: spacing.sm },
-  cancelCreateText: { color: colors.fgMuted, fontSize: typography.sizeSm },
-  branchRow: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingVertical: spacing.md, borderBottomColor: colors.borderMuted, borderBottomWidth: 1,
-  },
-  branchNameTouch: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
-  branchText: { color: colors.fgDefault, fontFamily: typography.mono, fontSize: typography.sizeSm },
-  branchTextActive: { color: colors.accent, fontWeight: '700' },
-  defaultTag: { color: colors.fgSubtle, fontSize: 10, borderColor: colors.border, borderWidth: 1, borderRadius: 4, paddingHorizontal: 4 },
-  deleteText: { color: colors.danger, fontSize: typography.sizeSm },
-});

@@ -11,9 +11,38 @@ import {
 } from 'react-native';
 import { listRepos } from '../services/github';
 import { startWatchingRepo, stopWatchingRepo, getWatchedRepo, getPlacedWidgetCount } from '../services/widgetControl';
-import { colors, spacing, typography } from '../theme';
+import { spacing, typography } from '../theme';
+import { useTheme } from '../theme/ThemeContext';
 
 export default function WidgetSettingsScreen() {
+  const { colors } = useTheme();
+
+  const styles = StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.bgDefault },
+    centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
+    statusCard: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, margin: spacing.md,
+    },
+    statusLabel: { color: colors.fgMuted, fontSize: typography.sizeSm, textTransform: 'uppercase' },
+    statusValue: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700', marginTop: 4 },
+    stopButton: { backgroundColor: colors.dangerEmphasis, borderRadius: 8, padding: spacing.sm, alignItems: 'center', marginTop: spacing.md },
+    stopButtonText: { color: '#fff', fontWeight: '600' },
+    widgetCountText: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: spacing.md, lineHeight: 18 },
+    sectionLabel: { color: colors.fgMuted, fontSize: typography.sizeSm, textTransform: 'uppercase', marginHorizontal: spacing.md, marginTop: spacing.sm },
+    searchInput: {
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 8, margin: spacing.md, marginBottom: 0, padding: spacing.md, color: colors.fgDefault,
+    },
+    repoRow: {
+      flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+      backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
+      borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
+    },
+    repoRowActive: { borderColor: colors.success },
+    repoName: { color: colors.fgDefault, fontSize: typography.sizeMd },
+    watchingBadge: { color: colors.success, fontSize: typography.sizeSm, fontWeight: '600' },
+  });
   const [repos, setRepos] = useState([]);
   const [filtered, setFiltered] = useState([]);
   const [search, setSearch] = useState('');
@@ -143,30 +172,3 @@ export default function WidgetSettingsScreen() {
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bgDefault },
-  centerContainer: { flex: 1, backgroundColor: colors.bgDefault, alignItems: 'center', justifyContent: 'center' },
-  statusCard: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, margin: spacing.md,
-  },
-  statusLabel: { color: colors.fgMuted, fontSize: typography.sizeSm, textTransform: 'uppercase' },
-  statusValue: { color: colors.fgDefault, fontSize: typography.sizeLg, fontWeight: '700', marginTop: 4 },
-  stopButton: { backgroundColor: colors.dangerEmphasis, borderRadius: 8, padding: spacing.sm, alignItems: 'center', marginTop: spacing.md },
-  stopButtonText: { color: '#fff', fontWeight: '600' },
-  widgetCountText: { color: colors.fgSubtle, fontSize: typography.sizeSm, marginTop: spacing.md, lineHeight: 18 },
-  sectionLabel: { color: colors.fgMuted, fontSize: typography.sizeSm, textTransform: 'uppercase', marginHorizontal: spacing.md, marginTop: spacing.sm },
-  searchInput: {
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 8, margin: spacing.md, marginBottom: 0, padding: spacing.md, color: colors.fgDefault,
-  },
-  repoRow: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    backgroundColor: colors.bgSubtle, borderColor: colors.border, borderWidth: 1,
-    borderRadius: 10, padding: spacing.md, marginBottom: spacing.sm,
-  },
-  repoRowActive: { borderColor: colors.success },
-  repoName: { color: colors.fgDefault, fontSize: typography.sizeMd },
-  watchingBadge: { color: colors.success, fontSize: typography.sizeSm, fontWeight: '600' },
-});
